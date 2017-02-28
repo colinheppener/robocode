@@ -1,11 +1,11 @@
 package robocode;
 
-import java.io.Serializable;
-import java.nio.ByteBuffer;
-
 import net.sf.robocode.security.IHiddenMineHelper;
 import net.sf.robocode.serialization.ISerializableHelper;
 import net.sf.robocode.serialization.RbSerializer;
+
+import java.io.Serializable;
+import java.nio.ByteBuffer;
 
 /**
  * Represents a Mine that is returned when placing one with {@link Ship#placeMine(double)}

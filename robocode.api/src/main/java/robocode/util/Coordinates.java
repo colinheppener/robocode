@@ -1,14 +1,15 @@
 package robocode.util;
 
-import static java.lang.Math.atan2;
-
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
-
 import robocode.naval.NavalRules;
 import robocode.naval.interfaces.IComponent;
 import robocode.robotinterfaces.ITransformable;
 import robocode.robotinterfaces.ITransformablePeer;
+
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
+
+import static java.lang.Math.atan2;
+
 
 /**
  * This class is responsible for transforming points into exact coordinates
@@ -116,7 +117,7 @@ public class Coordinates {
 		at.rotate(peer.getBodyHeading(), NavalRules.HALF_WIDTH_OFFSET, NavalRules.PROW_OFFSET);
 		return at;
 	}
-	
+
 	/**
 	 * Get the {@link java.awt.geom.AffineTransform AffineTransform} from the given values.
 	 * @param heading The heading of the robot.

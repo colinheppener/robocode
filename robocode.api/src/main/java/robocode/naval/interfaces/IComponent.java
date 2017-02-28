@@ -1,10 +1,10 @@
 package robocode.naval.interfaces;
 
-import java.awt.Color;
-import java.awt.geom.Point2D;
-
 import robocode.naval.ComponentType;
 import robocode.robotinterfaces.ITransformable;
+
+import java.awt.*;
+import java.awt.geom.Point2D;
 
 /**
  * Interface that defines methods required by components.

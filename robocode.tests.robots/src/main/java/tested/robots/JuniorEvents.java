@@ -73,6 +73,11 @@ public class JuniorEvents implements IJuniorRobot, IBasicEvents, Runnable {
 		count(event);
 	}
 
+	@Override
+	public void onBulletHitMissile(BulletHitMissileEvent event) {
+		count(event);
+	}
+
 	public void onBulletMissed(BulletMissedEvent event) {
 		count(event);
 	}
@@ -96,6 +101,14 @@ public class JuniorEvents implements IJuniorRobot, IBasicEvents, Runnable {
 	public void onRobotDeath(RobotDeathEvent event) {
 		count(event);
 	}
+
+	public void onMissileHit(MissileHitEvent event){ count(event);}
+
+	public void onMissileHitMissile(MissileHitMissileEvent event) {count(event);}
+
+	public void onMissileMissed(MissileMissedEvent event) {count(event);}
+
+	public void onHitByMissile(HitByMissileEvent event) {count(event);}
 
 	public void onWin(WinEvent event) {
 		count(event);

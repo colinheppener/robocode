@@ -494,6 +494,14 @@ public class Robot extends _Robot implements IInteractiveRobot, IPaintRobot, IBa
 		return null;
 	}
 
+	public Missile launchMissile(double power){
+		if(peer!=null){
+			return peer.launchMissile(power);
+		}
+		uninitializedException();
+		return null;
+	}
+
 	/**
 	 * Returns the rate at which the gun will cool down, i.e. the amount of heat
 	 * the gun heat will drop per turn.
@@ -699,6 +707,11 @@ public class Robot extends _Robot implements IInteractiveRobot, IPaintRobot, IBa
 	 */
 	public void onBulletHitBullet(BulletHitBulletEvent event) {}
 
+	@Override
+	public void onBulletHitMissile(BulletHitMissileEvent event) {
+
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -713,6 +726,18 @@ public class Robot extends _Robot implements IInteractiveRobot, IPaintRobot, IBa
 	 * {@inheritDoc}
 	 */
 	public void onHitByBullet(HitByBulletEvent event) {}
+
+
+	public void onMissileHit(MissileHitEvent event){}
+
+
+	public void onMissileHitMissile(MissileHitMissileEvent event) {}
+	/**{@inheritDoc}*/
+
+	public void onMissileMissed(MissileMissedEvent event) {}
+
+
+	public void onHitByMissile(HitByMissileEvent event) {}
 
 	/**
 	 * {@inheritDoc}

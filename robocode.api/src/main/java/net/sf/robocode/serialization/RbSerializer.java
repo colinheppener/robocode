@@ -84,6 +84,15 @@ public final class RbSerializer {
 	public final static byte MineCommand_TYPE = 63;
 	public final static byte ComponentsCommand_TYPE = 64;
 	public final static byte MineStatus_TYPE = 65;
+	public final static byte MissileHitMissileEvent_TYPE = 66;
+	public final static byte Missile_TYPE = 67;
+	public final static byte MissileHitEvent_TYPE = 68;
+	public final static byte MissileMissedEvent_TYPE = 69;
+	public final static byte HitByMissileEvent_TYPE =70;
+	public final static byte ScannedMissileEvent_TYPE = 71;
+	public final static byte BulletHitMissileEvent_TYPE = 72;
+	public final static byte MissileCommand_TYPE = 73;
+	public final static byte MissileStatus_TYPE = 74;
 		
 	//       Custom once go down from 127(7F) (Java uses SBYTE!)
 	public final static byte RadarComponent_TYPE = 0x7F;

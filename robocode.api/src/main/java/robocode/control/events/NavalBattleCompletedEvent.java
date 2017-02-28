@@ -1,14 +1,14 @@
 package robocode.control.events;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import robocode.BattleEndedEvent;
 import robocode.BattleResults;
 import robocode.BattleRules;
 import robocode.NavalBattleResults;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Contains the battle results returned by {@link BattleEndedEvent#getResults()}

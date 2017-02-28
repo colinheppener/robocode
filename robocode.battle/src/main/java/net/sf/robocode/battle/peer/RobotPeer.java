@@ -27,10 +27,12 @@ import robocode.control.RandomFactory;
 import robocode.control.RobotSetup;
 import robocode.control.RobotSpecification;
 import robocode.control.snapshot.BulletState;
+import robocode.control.snapshot.MissileState;
 import robocode.control.snapshot.RobotState;
 import robocode.exception.AbortedException;
 import robocode.exception.DeathException;
 import robocode.exception.WinException;
+import robocode.naval.NavalRules;
 import robocode.robotinterfaces.ITransformable;
 import static robocode.util.Utils.*;
 
@@ -70,7 +72,7 @@ public /*final*/ class RobotPeer implements IRobotPeerBattle, IRobotPeer, ITrans
 			WIDTH = 36,
 			HEIGHT = 36;
 
-	private static final int
+	public static final int
 			HALF_WIDTH_OFFSET = WIDTH / 2,
 			HALF_HEIGHT_OFFSET = HEIGHT / 2;
 
@@ -90,6 +92,8 @@ public /*final*/ class RobotPeer implements IRobotPeerBattle, IRobotPeer, ITrans
 			new ArrayList<TeamMessage>());
 	private AtomicReference<List<BulletStatus>> bulletUpdates = new AtomicReference<List<BulletStatus>>(
 			new ArrayList<BulletStatus>());
+	private AtomicReference<List<MissileStatus>> missileUpdates = new AtomicReference<List<MissileStatus>>(
+			new ArrayList<MissileStatus>());
 
 	// thread is running
 	private final AtomicBoolean isRunning = new AtomicBoolean(false);
@@ -113,6 +117,7 @@ public /*final*/ class RobotPeer implements IRobotPeerBattle, IRobotPeer, ITrans
 	private double gunHeat;
 	protected double x;
 	protected double y;
+	protected boolean immuneForBlast;
 
 	private boolean scan;
 	private boolean turnedRadarWithGun; // last round
@@ -437,6 +442,8 @@ public /*final*/ class RobotPeer implements IRobotPeerBattle, IRobotPeer, ITrans
 		return commands.get().getBulletColor();
 	}
 
+	public int getMissileColor() {return commands.get().getMissileColor();}
+
 	public int getScanColor() {
 		return commands.get().getScanColor();
 	}
@@ -543,7 +550,7 @@ public /*final*/ class RobotPeer implements IRobotPeerBattle, IRobotPeer, ITrans
 		final RobotStatus resStatus = status.get();
 
 		final boolean shouldWait = battle.isAborted() || (battle.isLastRound() && isWinner());
-		return new ExecResults(resCommands, resStatus, readoutEvents(), readoutTeamMessages(), readoutBullets(), null,
+		return new ExecResults(resCommands, resStatus, readoutEvents(), readoutTeamMessages(), readoutBullets(), readoutMissiles(), null,
 				isHalt(), shouldWait, isPaintEnabled());
 	}
 
@@ -563,7 +570,7 @@ public /*final*/ class RobotPeer implements IRobotPeerBattle, IRobotPeer, ITrans
 
 		readoutTeamMessages(); // throw away
 		
-		return new ExecResults(resCommands, resStatus, readoutEvents(), new ArrayList<TeamMessage>(), readoutBullets(),null,
+		return new ExecResults(resCommands, resStatus, readoutEvents(), new ArrayList<TeamMessage>(), readoutBullets(), readoutMissiles(),null,
 				isHalt(), shouldWait, false);
 	}
 
@@ -589,6 +596,10 @@ public /*final*/ class RobotPeer implements IRobotPeerBattle, IRobotPeer, ITrans
 
 	private List<BulletStatus> readoutBullets() {
 		return bulletUpdates.getAndSet(new ArrayList<BulletStatus>());
+	}
+
+	private List<MissileStatus> readoutMissiles(){
+		return missileUpdates.getAndSet(new ArrayList<MissileStatus>());
 	}
 
 	private void waitForNextTurn() {
@@ -738,7 +749,7 @@ public /*final*/ class RobotPeer implements IRobotPeerBattle, IRobotPeer, ITrans
 				if (isSentryRobot()) {
 					boolean placeOnHorizontalBar = random.nextDouble()
 							<= ((double) battleRules.getBattlefieldWidth()
-									/ (battleRules.getBattlefieldWidth() + battleRules.getBattlefieldHeight()));
+							/ (battleRules.getBattlefieldWidth() + battleRules.getBattlefieldHeight()));
 
 					if (placeOnHorizontalBar) {
 						x = halfRobotWidth + rndX * maxWidth;
@@ -755,82 +766,94 @@ public /*final*/ class RobotPeer implements IRobotPeerBattle, IRobotPeer, ITrans
 						x = sentryBorderSize + RobotPeer.WIDTH + rndX * (safeZoneWidth - 2 * RobotPeer.WIDTH);
 						y = sentryBorderSize + RobotPeer.HEIGHT + rndY * (safeZoneHeight - 2 * RobotPeer.HEIGHT);
 					} else {
-						if(HiddenAccess.getNaval()){
+						if (HiddenAccess.getNaval()) {
 							x = ShipPeer.HEIGHT + rndX * (battleRules.getBattlefieldWidth() - 2 * ShipPeer.HEIGHT);
 							y = ShipPeer.HEIGHT + rndY * (battleRules.getBattlefieldHeight() - 2 * RobotPeer.HEIGHT);
-						}else{
+						} else {
 							x = RobotPeer.WIDTH + rndX * (battleRules.getBattlefieldWidth() - 2 * RobotPeer.WIDTH);
 							y = RobotPeer.HEIGHT + rndY * (battleRules.getBattlefieldHeight() - 2 * RobotPeer.HEIGHT);
 						}
-						
+
 					}
 				}
 
 				bodyHeading = 2 * Math.PI * random.nextDouble();
 				gunHeading = radarHeading = bodyHeading;
 				updateBoundingBox();
-				
-//				if(BattleManager.IS_NAVAL){
+
+//				if (BattleManager.IS_NAVAL) {
 //					if (validSpotShips(robots)) {
 //						break;
 //					}
-//				}else{
+//				} else {
 					if (validSpot(robots)) {
 						break;
 					}
 //				}
+				}
+			}
+
+			setState(RobotState.ACTIVE);
+
+			isWinner = false;
+			velocity = 0;
+
+			energy = 100;
+			if (statics.isSentryRobot()) {
+				energy += 400;
+			}
+			if (statics.isTeamLeader()) {
+				energy += 100;
+			}
+			if (statics.isDroid()) {
+				energy += 20;
+			}
+
+			gunHeat = 3;
+
+			setHalt(false);
+			isExecFinishedAndDisabled = false;
+			isEnergyDrained = false;
+
+			scan = false;
+
+			inCollision = false;
+
+			scanArc.setAngleStart(0);
+			scanArc.setAngleExtent(0);
+			scanArc.setFrame(-100, -100, 1, 1);
+
+			lastExecutionTime = -1;
+
+
+			status = new AtomicReference<RobotStatus>();
+
+
+			readoutEvents();
+			readoutTeamMessages();
+			readoutBullets();
+
+			battleText.setLength(0);
+			proxyText.setLength(0);
+
+			// Prepare new execution commands, but copy the colors from the last commands.
+			// Bugfix [2628217] - Robot Colors don't stick between rounds.
+			ExecCommands newExecCommands = new ExecCommands();
+
+			newExecCommands.copyColors(commands.get());
+			commands = new AtomicReference<ExecCommands>(newExecCommands);
+	}
+
+
+	protected boolean validSpotShips(List<RobotPeer> ships) {
+		for (RobotPeer otherShip : ships) {
+			if (otherShip != null && otherShip != this) {
+				if (getBoundingBox().intersects(otherShip.getBoundingBox())) {
+					return false;
+				}
 			}
 		}
-
-		setState(RobotState.ACTIVE);
-
-		isWinner = false;
-		velocity = 0;
-
-		energy = 100;
-		if (statics.isSentryRobot()) {
-			energy += 400;
-		}
-		if (statics.isTeamLeader()) {
-			energy += 100;
-		}
-		if (statics.isDroid()) {
-			energy += 20;
-		}
-
-		gunHeat = 3;
-
-		setHalt(false);
-		isExecFinishedAndDisabled = false;
-		isEnergyDrained = false;
-
-		scan = false;
-
-		inCollision = false;
-
-		scanArc.setAngleStart(0);
-		scanArc.setAngleExtent(0);
-		scanArc.setFrame(-100, -100, 1, 1);
-
-		lastExecutionTime = -1;
-
-		
-		status = new AtomicReference<RobotStatus>();
-		
-
-		readoutEvents();
-		readoutTeamMessages();
-		readoutBullets();
-
-		battleText.setLength(0);
-		proxyText.setLength(0);
-
-		// Prepare new execution commands, but copy the colors from the last commands.
-		// Bugfix [2628217] - Robot Colors don't stick between rounds.
-		ExecCommands newExecCommands = new ExecCommands();
-
-		newExecCommands.copyColors(commands.get());
-		commands = new AtomicReference<ExecCommands>(newExecCommands);
+		return true;
 	}
 
 	protected boolean validSpot(List<RobotPeer> robots) {
@@ -890,6 +913,8 @@ public /*final*/ class RobotPeer implements IRobotPeerBattle, IRobotPeer, ITrans
 
 		fireBullets(currentCommands.getBullets());
 
+		launchMissiles(currentCommands.getMissiles());
+
 		if (currentCommands.isScan()) {
 			scan = true;
 		}
@@ -941,6 +966,43 @@ public /*final*/ class RobotPeer implements IRobotPeerBattle, IRobotPeer, ITrans
 		}
 		
 		
+	}
+
+	protected void launchMissiles(List<MissileCommand> missileCommands) {
+		MissilePeer newMissile = null;
+
+		for (MissileCommand missileCmd : missileCommands) {
+			if (Double.isNaN(missileCmd.getPower())) {
+				println("SYSTEM: You cannot call fire(NaN)");
+				continue;
+			}
+			if (gunHeat > 0 || energy == 0) {
+				return;
+			}
+
+			double firePower = min(energy,
+					min(max(missileCmd.getPower(), NavalRules.MIN_MISSILE_POWER), NavalRules.MAX_MISSILE_POWER));
+			updateEnergy(-firePower);
+
+			gunHeat += Rules.getGunHeat(firePower);
+
+			newMissile = new MissilePeer(this, battleRules, missileCmd.getMissileId());
+
+			newMissile.setPower(firePower);
+				newMissile.setHeading(getGunHeading());
+
+			newMissile.setX(x);
+			newMissile.setY(y);
+		}
+
+		// there is only last bullet in one turn
+		if (newMissile != null) {
+			// newBullet.update(robots, bullets);
+			battle.addMissile(newMissile);
+			System.out.println("missile added to battle queue");
+		}
+
+
 	}
 
 	public /*final*/ void performMove(List<RobotPeer> robots, double zapEnergy) {
@@ -998,8 +1060,9 @@ public /*final*/ class RobotPeer implements IRobotPeerBattle, IRobotPeer, ITrans
 			zap(zapEnergy);
 		}
 	}
-	
-	public void performScan(List<RobotPeer> robots) {
+
+
+	public void performScan(List<RobotPeer> robots, List<MissilePeer> missiles) {
 		if (isDead()) {
 			return;
 		}
@@ -1007,10 +1070,10 @@ public /*final*/ class RobotPeer implements IRobotPeerBattle, IRobotPeer, ITrans
 		turnedRadarWithGun = false;
 		// scan
 		if(isShip()){
-			scan(robots);
+			scan(robots, missiles);
 		}
 		else if (scan) {
-			scan(lastRadarHeading, robots);
+			scan(lastRadarHeading, robots, missiles);
 			turnedRadarWithGun = (lastGunHeading == lastRadarHeading) && (gunHeading == radarHeading);
 			scan = false;
 		}
@@ -1031,7 +1094,7 @@ public /*final*/ class RobotPeer implements IRobotPeerBattle, IRobotPeer, ITrans
 		lastRadarHeading = -1;
 	}
 	
-	protected void scan(List<RobotPeer> robots){ System.out.println("Not possible as a Robot. 'Abstract' method for ShipPeer!");}
+	protected void scan(List<RobotPeer> robots, List<MissilePeer> missiles){ System.out.println("Not possible as a Robot. 'Abstract' method for ShipPeer!");}
 
 	private void addTeamMessage(TeamMessage message) {
 		final List<TeamMessage> queue = teamMessages.get();
@@ -1200,7 +1263,7 @@ public /*final*/ class RobotPeer implements IRobotPeerBattle, IRobotPeer, ITrans
 
 			// Update energy, but do not reset inactiveTurnCount
 			if (statics.isAdvancedRobot()) {
-				setEnergy(energy - Rules.getWallHitDamage(velocity), false);
+				setEnergy(energy - NavalRules.getWallHitDamage(velocity), false);
 			}
 
 			updateBoundingBox();
@@ -1288,7 +1351,7 @@ public /*final*/ class RobotPeer implements IRobotPeerBattle, IRobotPeer, ITrans
 
 			// Update energy, but do not reset inactiveTurnCount
 			if (statics.isAdvancedRobot()) {
-				setEnergy(energy - Rules.getWallHitDamage(velocity), false);
+				setEnergy(energy - NavalRules.getWallHitDamage(velocity), false);
 			}
 
 			updateBoundingBox();
@@ -1308,7 +1371,7 @@ public /*final*/ class RobotPeer implements IRobotPeerBattle, IRobotPeer, ITrans
 		return battleRules.getBattlefieldWidth();
 	}
 
-	protected void updateBoundingBox() {
+	public void updateBoundingBox() {
 		boundingBox.setRect(x - HALF_WIDTH_OFFSET, y - HALF_HEIGHT_OFFSET, WIDTH, HEIGHT);
 	}
 
@@ -1580,7 +1643,7 @@ public /*final*/ class RobotPeer implements IRobotPeerBattle, IRobotPeer, ITrans
 		}
 	}
 
-	protected void scan(double lastRadarHeading, List<RobotPeer> robots) {		
+	protected void scan(double lastRadarHeading, List<RobotPeer> robots, List<MissilePeer> missiles) {
 		if (statics.isDroid()) {
 			return;
 		}
@@ -1616,6 +1679,21 @@ public /*final*/ class RobotPeer implements IRobotPeerBattle, IRobotPeer, ITrans
 				final ScannedRobotEvent event = new ScannedRobotEvent(getNameForEvent(otherRobot), otherRobot.energy,
 						normalRelativeAngle(angle - getBodyHeading()), dist, otherRobot.getBodyHeading(),
 						otherRobot.getVelocity(), otherRobot.isSentryRobot());
+
+				addEvent(event);
+			}
+		}
+		for (MissilePeer missile : missiles) {
+			if (!(missile == null)
+					&& intersects(scanArc, missile.getBoundingBox())) {
+				double dx = missile.x - x;
+				double dy = missile.y - y;
+				double angle = atan2(dx, dy);
+				double dist = Math.hypot(dx, dy);
+
+				final ScannedMissileEvent event = new ScannedMissileEvent("missile scanned", missile.getPower(),
+						normalRelativeAngle(angle - getBodyHeading()), dist, missile.getHeading(),
+						0, missile.getHeading(), missile.getVelocity(), missile.getX(), missile.getY(), missile.getOwner().getName());
 
 				addEvent(event);
 			}
@@ -1738,6 +1816,7 @@ public /*final*/ class RobotPeer implements IRobotPeerBattle, IRobotPeer, ITrans
 			// 'fake' bullet for explosion on self
 			final ExplosionPeer fake = new ExplosionPeer(this, battleRules);
 
+
 			battle.addBullet(fake);
 		}
 		updateEnergy(-energy);
@@ -1788,6 +1867,11 @@ public /*final*/ class RobotPeer implements IRobotPeerBattle, IRobotPeer, ITrans
 		return statics.isShip();
 	}
 
+	@Override
+	public boolean isProjectile() {
+		return false;
+	}
+
 	public List<DebugProperty> getDebugProperties() {
 		return commands.get().getDebugProperties();
 	}
@@ -1810,6 +1894,13 @@ public /*final*/ class RobotPeer implements IRobotPeerBattle, IRobotPeer, ITrans
 	void addBulletStatus(BulletStatus bulletStatus) {
 		if (isAlive()) {
 			bulletUpdates.get().add(bulletStatus);
+		}
+	}
+
+	void addMissileStatus(MissileStatus missileStatus)
+	{
+		if(isAlive()) {
+			missileUpdates.get().add(missileStatus);
 		}
 	}
 
@@ -1860,4 +1951,7 @@ public /*final*/ class RobotPeer implements IRobotPeerBattle, IRobotPeer, ITrans
 	
 	public void onScannedShip(ScannedShipEvent event) {}
 
+	public void setImmuneForBlast(boolean immuneForBlast) {
+		this.immuneForBlast = immuneForBlast;
+	}
 }

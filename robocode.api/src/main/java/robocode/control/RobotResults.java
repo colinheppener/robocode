@@ -34,6 +34,8 @@ public class RobotResults extends BattleResults {
 	 * @param lastSurvivorBonus is the last survivor bonus for the robot in the battle
 	 * @param bulletDamage is the bullet damage score for the robot in the battle
 	 * @param bulletDamageBonus is the bullet damage bonus for the robot in the battle
+	 * @param missileDamage is the missile damage score for the robot in the battle
+	 * @param missileDamageBonus is the missile damage bonus for the robot in the battle   
 	 * @param ramDamage is the ramming damage for the robot in the battle
 	 * @param ramDamageBonus is the ramming damage bonus for the robot in the battle
 	 * @param firsts is the number of rounds this robot placed first
@@ -49,13 +51,15 @@ public class RobotResults extends BattleResults {
 			double lastSurvivorBonus,
 			double bulletDamage,
 			double bulletDamageBonus,
+			double missileDamage,
+			double missileDamageBonus,
 			double ramDamage,
 			double ramDamageBonus,
 			int firsts,
 			int seconds,
 			int thirds
 			) {
-		super(teamLeaderName, rank, score, survival, lastSurvivorBonus, bulletDamage, bulletDamageBonus, ramDamage,
+		super(teamLeaderName, rank, score, survival, lastSurvivorBonus, bulletDamage, bulletDamageBonus, missileDamage, missileDamageBonus, ramDamage,
 				ramDamageBonus, firsts, seconds, thirds);
 		this.robot = robot;
 	}
@@ -71,7 +75,7 @@ public class RobotResults extends BattleResults {
 			RobotSpecification robot,
 			BattleResults results) {
 		super(results.getTeamLeaderName(), results.getRank(), results.getScore(), results.getSurvival(),
-				results.getLastSurvivorBonus(), results.getBulletDamage(), results.getBulletDamageBonus(),
+				results.getLastSurvivorBonus(), results.getBulletDamage(), results.getBulletDamageBonus(), results.getMissileDamage(), results.getMissileDamageBonus(),
 				results.getRamDamage(), results.getRamDamageBonus(), results.getFirsts(), results.getSeconds(),
 				results.getThirds());
 		this.robot = robot;
@@ -112,6 +116,10 @@ public class RobotResults extends BattleResults {
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		temp = Double.doubleToLongBits(bulletDamageBonus);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(missileDamage);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(missileDamageBonus);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + firsts;
 		temp = Double.doubleToLongBits(lastSurvivorBonus);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -147,6 +155,12 @@ public class RobotResults extends BattleResults {
 			return false;
 		}
 		if (Double.doubleToLongBits(bulletDamageBonus) != Double.doubleToLongBits(other.bulletDamageBonus)) {
+			return false;
+		}
+		if (Double.doubleToLongBits(missileDamage) != Double.doubleToLongBits(other.missileDamage)) {
+			return false;
+		}
+		if (Double.doubleToLongBits(missileDamageBonus) != Double.doubleToLongBits(other.missileDamageBonus)) {
 			return false;
 		}
 		if (firsts != other.firsts) {

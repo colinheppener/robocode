@@ -32,6 +32,7 @@ public final class ExecCommands implements Serializable{
 	public static final int defaultRadarColor = 0xFF29298C;
 	public static final int defaultScanColor = 0xFF0000FF;
 	public static final int defaultBulletColor = 0xFFFFFFFF;
+	public static final int defaultMissileColor = 0xFFFFFFFF;
 
 	private double bodyTurnRemaining;  // [1, 1]
 	private double radarTurnRemaining; // [0, n>
@@ -48,6 +49,7 @@ public final class ExecCommands implements Serializable{
 	private int radarColor = defaultRadarColor; // [0, n> OR [1, 1]
 	private int scanColor = defaultScanColor;   // [1, 1]
 	private int bulletColor = defaultBulletColor;
+	private int missileColor = defaultMissileColor;
 	private double maxTurnRate;
 	private double maxVelocity;
 
@@ -60,6 +62,7 @@ public final class ExecCommands implements Serializable{
 	private List<DebugProperty> debugProperties = new ArrayList<DebugProperty>();
 	private Object graphicsCalls;
 	private List<BulletCommand> bullets = new ArrayList<BulletCommand>();
+	private List<MissileCommand> missiles = new ArrayList<MissileCommand>();
 	
 	private List<ComponentCommands> componentCommands = new ArrayList<ComponentCommands>(getMaxComponents());
 	private List<MineCommand> mines = new ArrayList<MineCommand>();	
@@ -98,6 +101,7 @@ public final class ExecCommands implements Serializable{
 		if (fromRobot) {
 			debugProperties = origin.debugProperties; 
 			bullets = origin.bullets;
+			missiles = origin.missiles;
 			scan = origin.scan;
 			moved = origin.moved;
 			graphicsCalls = origin.graphicsCalls;
@@ -134,6 +138,7 @@ public final class ExecCommands implements Serializable{
 			gunColor = origin.gunColor;
 			radarColor = origin.radarColor;
 			bulletColor = origin.bulletColor;
+			missileColor = origin.missileColor;
 			scanColor = origin.scanColor;
 		}
 	}
@@ -153,6 +158,8 @@ public final class ExecCommands implements Serializable{
 	public int getBulletColor() {
 		return bulletColor;
 	}
+
+	public int getMissileColor() {return missileColor;}
 
 	public int getScanColor() {
 		return scanColor;
@@ -277,6 +284,8 @@ public final class ExecCommands implements Serializable{
 	public List<BulletCommand> getBullets() {
 		return bullets;
 	}
+
+	public List<MissileCommand> getMissiles(){return missiles;}
 	
 	public List<MineCommand> getMines(){
 		return mines;

@@ -439,6 +439,8 @@ public class AdvancedRobot extends _AdvancedRadiansRobot implements IAdvancedRob
 		return null;
 	}
 
+
+
 	/**
 	 * Registers a custom event to be called when a condition is met.
 	 * When you are finished with your condition or just want to remove it you
@@ -615,6 +617,32 @@ public class AdvancedRobot extends _AdvancedRadiansRobot implements IAdvancedRob
 	}
 
 	/**
+	 * Returns a vector containing all BulletHitMissile currently in the
+	 * robot's queue. You might, for example, call this while processing another
+	 * event.
+	 * <p/>
+	 * Example:
+	 * <pre>
+	 *   for (BulletHitBulletEvent event : getBulletHitMissileEvents()) {
+	 *       <i>// do something with the event</i>
+	 *   }
+	 * </pre>
+	 *
+	 * @return a vector containing all BulletHitMissileEvents currently in the
+	 *         robot's queue
+	 * @see #onBulletHitMissile(BulletHitMissileEvent)
+	 * @see BulletHitMissileEvent
+	 * @see #getAllEvents()
+	 */
+	public Vector<BulletHitMissileEvent> getBulletHitMissileEvents() {
+		if (peer != null) {
+			return new Vector<BulletHitMissileEvent>(((IAdvancedRobotPeer) peer).getBulletHitMissileEvents());
+		}
+		uninitializedException();
+		return null; // never called
+	}
+
+	/**
 	 * Returns a vector containing all BulletHitEvents currently in the robot's
 	 * queue. You might, for example, call this while processing another event.
 	 * <p/>
@@ -634,6 +662,31 @@ public class AdvancedRobot extends _AdvancedRadiansRobot implements IAdvancedRob
 	public Vector<BulletHitEvent> getBulletHitEvents() {
 		if (peer != null) {
 			return new Vector<BulletHitEvent>(((IAdvancedRobotPeer) peer).getBulletHitEvents());
+		}
+		uninitializedException();
+		return null; // never called
+	}
+
+	/**
+	 * Returns a vector containing all MissileHitEvents currently in the robot's
+	 * queue. You might, for example, call this while processing another event.
+	 * <p/>
+	 * Example:
+	 * <pre>
+	 *   for (BulletHitEvent event: getMissileHitEvents()) {
+	 *       <i>// do something with the event</i>
+	 *   }
+	 * </pre>
+	 *
+	 * @return a vector containing all MissileHitEvents currently in the robot's
+	 *         queue
+	 * @see #onMissileHit(MissileHitEvent)
+	 * @see MissileHitEvent
+	 * @see #getAllEvents()
+	 */
+	public Vector<MissileHitEvent> getMissileHitEvents() {
+		if (peer != null) {
+			return new Vector<MissileHitEvent>(((IAdvancedRobotPeer) peer).getMissileHitEvents());
 		}
 		uninitializedException();
 		return null; // never called

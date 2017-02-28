@@ -7,8 +7,6 @@
  *******************************************************************************/
 package net.sf.robocode.ui.battleview;
 
-
-import net.sf.robocode.battle.BattleManager;
 import net.sf.robocode.battle.BoundingRectangle;
 import net.sf.robocode.battle.snapshot.RobotSnapshot;
 import net.sf.robocode.battle.snapshot.components.BlindSpotSnapshot;
@@ -29,12 +27,7 @@ import robocode.control.events.BattleAdaptor;
 import robocode.control.events.BattleFinishedEvent;
 import robocode.control.events.BattleStartedEvent;
 import robocode.control.events.TurnEndedEvent;
-import robocode.control.snapshot.IBulletSnapshot;
-import robocode.control.snapshot.IComponentSnapshot;
-import robocode.control.snapshot.IMineSnapshot;
-import robocode.control.snapshot.IRobotSnapshot;
-import robocode.control.snapshot.IShipSnapshot;
-import robocode.control.snapshot.ITurnSnapshot;
+import robocode.control.snapshot.*;
 import robocode.naval.NavalRules;
 import robocode.util.Collision;
 import robocode.util.Coordinates;
@@ -61,7 +54,7 @@ import java.util.Random;
 @SuppressWarnings("serial")
 public class BattleView extends Canvas {
 	
-	private final static boolean DEBUG = false;	//Enable to put fancy boxes around ships that represent their bounding boxes
+	private final static boolean DEBUG = false;	//Enable to put fancy boxes around ships or missiles that represent their bounding boxes
 
 	private final static String ROBOCODE_SLOGAN = "Build the best, destroy the rest!";
 
@@ -345,10 +338,15 @@ public class BattleView extends Canvas {
 			if(HiddenAccess.getNaval()){
 				// Draw all bullets
 				drawBulletsShip(g, snapShot);
+
+
+
 				// Draw all text
 				drawTextShip(g, snapShot);
 				
 				drawMines(g, snapShot);
+
+				drawMissiles(g, snapShot);
 			}
 			else{
 				// Draw all bullets
@@ -445,7 +443,7 @@ public class BattleView extends Canvas {
 		int battleFieldHeight = battleField.getHeight();
 
 		if (drawGround && drawExplosionDebris) {
-			RenderImage explodeDebrise = imageManager.getExplosionDebriseRenderImage();
+			RenderImage explodedebris = imageManager.getExplosionDebrisRenderImage();
 
 			for (IRobotSnapshot robotSnapshot : snapShot.getRobots()) {
 				if (robotSnapshot.getState().isDead()) {
@@ -454,8 +452,8 @@ public class BattleView extends Canvas {
 
 					at = AffineTransform.getTranslateInstance(x, y);
 
-					explodeDebrise.setTransform(at);
-					explodeDebrise.paint(g);
+					explodedebris.setTransform(at);
+					explodedebris.paint(g);
 				}
 			}
 		}
@@ -512,7 +510,7 @@ public class BattleView extends Canvas {
 
 
 		if (drawGround && drawExplosionDebris) {
-			RenderImage explodeDebrise = imageManager.getExplosionDebriseRenderImage();
+			RenderImage explodeDebris = imageManager.getExplosionDebrisRenderImage();
 
 			for (IShipSnapshot shipSnapshot : shipSnapshots) {
 				if (shipSnapshot.getState().isDead()) {
@@ -520,9 +518,9 @@ public class BattleView extends Canvas {
 					y = /*battleFieldHeight -*/ shipSnapshot.getY();
 
 					at = AffineTransform.getTranslateInstance(x, y);
-
-					explodeDebrise.setTransform(at);
-					explodeDebrise.paint(g);
+					at.scale(2, 2);
+					explodeDebris.setTransform(at);
+					explodeDebris.paint(g);
 				}
 			}
 		}
@@ -605,8 +603,8 @@ public class BattleView extends Canvas {
 	
 	/**
 	 * Created to test the BoundingBoxes of the Ship, which were previously almost seemingly random. The function helped a lot with debugging.
-	 * @param g
-	 * @param robotSnapshot
+	 * @param g The graphics to be drawn on
+	 * @param robotSnapshot The snapshot which contains the robot
 	 */
 	private void drawBoundingBoxShip(Graphics2D g, IRobotSnapshot robotSnapshot){
 		AffineTransform at2 = new AffineTransform();
@@ -623,6 +621,7 @@ public class BattleView extends Canvas {
 				(int)(robotSnapshot.getY() + (NavalRules.PROW_OFFSET * Math.sin(robotSnapshot.getBodyHeading() + Math.PI/2)) -5),
 				10, 10);
 	}
+
 	
 	private void drawTextShip(Graphics2D g, ITurnSnapshot snapShot) {
 		final Shape savedClip = g.getClip();
@@ -793,6 +792,57 @@ public class BattleView extends Canvas {
 		}
 		g.setClip(savedClip);
 	}
+
+	private void drawMissiles(Graphics2D g, ITurnSnapshot snapShot) {
+		final Shape savedClip = g.getClip();
+		g.setClip(null);
+
+		double x, y;
+		for (IMissileSnapshot missileSnapshot : snapShot.getMissiles()) {
+			x = missileSnapshot.getBoundingBox().getCenterX();
+			y = missileSnapshot.getBoundingBox().getCenterY();
+			if (x !=0 && y !=0) {
+				AffineTransform at = AffineTransform.getTranslateInstance(x, y);
+				if (missileSnapshot.getState().isActive()) {
+					double scale = max(2 * sqrt(3 * missileSnapshot.getPower() / 50), 2 / this.scale) /15;
+					at.scale(scale, scale);
+					at.rotate(missileSnapshot.getHeading() * -1 + Math.PI);
+					if (DEBUG) {
+						g.setColor(Color.RED);
+						g.draw(missileSnapshot.getBoundingBox());
+					}
+					RenderImage missileRenderImage = imageManager.getColoredMissileRenderNavalImage(Color.RED.getRGB());
+					missileRenderImage.setTransform(at);
+					missileRenderImage.paint(g);
+
+
+				} else if (drawExplosions) {
+					int explosionIndex = missileSnapshot.getExplosionImageIndex();
+					int frame = missileSnapshot.getFrame();
+
+					// Sanity check to avoid bug-354 - Replaying an XML record can cause an ArrayIndexOutOfBoundsException
+					if (explosionIndex >= 0 && frame >= 0) {
+						double scale = sqrt(missileSnapshot.getPower() / 10);
+
+						if (!missileSnapshot.isExplosion()) {
+							at.scale(scale, scale);
+						}
+						RenderImage explosionRenderImage = imageManager.getExplosionRenderImage(explosionIndex, frame);
+						explosionRenderImage.setTransform(at);
+						explosionRenderImage.paint(g);
+					}
+					if (DEBUG) {
+						BoundingRectangle blastBox = new BoundingRectangle();
+						double radius = NavalRules.getMissileBlastRadius(missileSnapshot.getPower());
+						blastBox.setRect((x - radius), (y - radius), radius * 2, radius * 2);
+						g.setColor(Color.RED);
+						g.draw(blastBox);
+					}
+				}
+			}
+		}
+		g.setClip(savedClip);
+	}
 	
 	/**
 	 * Draws the mines that are to be drawn in the current turn.
@@ -815,29 +865,13 @@ public class BattleView extends Canvas {
 
 			if (mineSnapshot.getState().isActive()) {
 
-				// radius = sqrt(x^2 / 0.1 * power), where x is the width of 1 pixel for a minimum 0.1 bullet
 				double scale = max(2 * sqrt(10 * mineSnapshot.getPower()), 2 / this.scale);
-				if(DEBUG){
-					double scale2 = 2 * sqrt(10 * mineSnapshot.getPower());
-					length = scale2;
-					scale = scale2;
-				}
-				at.scale(scale/15, scale/15);
-				
-				
-//				RenderImage mineRenderImage = imageManager.getColoredMineRenderNavalImage(mineSnapshot.getColor());
-				RenderImage mineRenderImage = imageManager.getColoredMineRenderNavalImage(0);
 
+				at.scale(scale/15, scale/15);
+
+				RenderImage mineRenderImage = imageManager.getColoredMineRenderNavalImage(0);
 				mineRenderImage.setTransform(at);
 				mineRenderImage.paint(g);
-				if(DEBUG){
-					g.setColor(Color.red);
-					g.fillRect((int)mineSnapshot.getX() - 5, (int)mineSnapshot.getY() -5, 10, 10);
-					g.fillRect((int)mineSnapshot.getX() - 5, battleRules.getBattlefieldHeight() - ((int)mineSnapshot.getY() -5), 10, 10);
-					BoundingRectangle boundingBox = new BoundingRectangle((int)(- length/2), (int)(- length/2), length, length);
-					g.setTransform(at);
-					g.draw(boundingBox);
-				}
 
 			} else if (drawExplosions) {
 				int explosionIndex = mineSnapshot.getExplosionImageIndex();
@@ -872,7 +906,6 @@ public class BattleView extends Canvas {
 
 			if (bulletSnapshot.getState().isActive()) {
 
-				// radius = sqrt(x^2 / 0.1 * power), where x is the width of 1 pixel for a minimum 0.1 bullet
 				double scale = max(2 * sqrt(2.5 * bulletSnapshot.getPower()), 2 / this.scale);
 
 				at.scale(scale, scale);
@@ -1002,13 +1035,14 @@ public class BattleView extends Canvas {
 	}
 
 	private void paintRobocodeLogo(Graphics2D g) {
-		setBackground(Color.BLACK);
+		Color color =new Color(237, 236, 235);
+		setBackground(color);
 		g.clearRect(0, 0, getWidth(), getHeight());
 
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 		g.transform(AffineTransform.getTranslateInstance((getWidth() - 320) / 2.0, (getHeight() - 46) / 2.0));
-		g.setColor(new Color(0, 0x40, 0));
+		g.setColor(new Color(0, 0, 0x40));
 		g.fill(robocodeTextPath);
 
 		Font font = new Font("Dialog", Font.BOLD, 14);
@@ -1016,7 +1050,7 @@ public class BattleView extends Canvas {
 
 		g.setTransform(new AffineTransform());
 		g.setFont(font);
-		g.setColor(new Color(0, 0x50, 0));
+		g.setColor(new Color(0, 0, 0x50));
 		g.drawString(ROBOCODE_SLOGAN, (float) ((getWidth() - width) / 2.0), (float) (getHeight() / 2.0 + 50));
 	}
 

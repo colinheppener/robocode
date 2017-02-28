@@ -6,6 +6,9 @@ import robocode.HitRobotEvent;
 import robocode.HitWallEvent;
 import robocode.ScannedShipEvent;
 import robocode.Ship;
+import robocode.ScannedMissileEvent;
+import robocode.HitByMissileEvent;
+import robocode.HitByMineEvent;
 
 /**
  * $CLASSNAME - a ship by (your name here)
@@ -48,6 +51,14 @@ public class $CLASSNAME extends Ship{
 		setTurnRightDegrees(45);
 	}
 
+    public void onHitByMine(HitByMineEvent e){
+        //Do something when you're hit by a mine
+    }
+
+    public void onHitByMissile(HitByMissileEvent e){
+        //Do something when you're hit by a missile
+    }
+
 	public void onHitRobot(HitRobotEvent event){
 		//Fill in something you'd like your Ship to do when it hits another Ship
 	}
@@ -67,12 +78,24 @@ public class $CLASSNAME extends Ship{
 		//If your front cannon is not at its blindspot
 		if(!getFrontCannonAtBlindSpot()){
 			//Then shoot!
-			fireFrontCannon(3);
+			//fireFrontCannon(3); Not today! We're going to launch a missile!
+		}
+		if(!getFrontCannonAtBlindSpot()){
+		    //Launch Missile(With the most power we can use of course)! A missile uses the front cannon as a launcher.
+           	//A missile will travel at a certain speed and travel a certain distance. The speed is dependent on the power
+           	//you use to fire the missile. A missile's power can be between 10 and 30.
+           	//The more power, the heavier it will be, so the missile will be slower.
+            //The distance the missile will travel is equal to the missile's power * 50. So in this case: 30*50 = 1500 pixels.
+		    launchMissile(30);
 		}
 		//We waited all this time for our cannon to turn and it didn't even reach its target?!
 		else{
 			//Bomb the place.
 			placeMine(5);
 		}
+	}
+
+	public void onScannedMissile(ScannedMissileEvent event){
+	//Basically works the same way as the onScannedShip method but instead of a ship it detects a missile.
 	}
 }

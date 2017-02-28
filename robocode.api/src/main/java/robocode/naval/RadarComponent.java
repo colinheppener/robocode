@@ -1,18 +1,18 @@
 package robocode.naval;
 
-import static java.lang.Math.PI;
+import net.sf.robocode.security.IHiddenComponentHelper;
+import net.sf.robocode.serialization.ISerializableHelper;
+import net.sf.robocode.serialization.RbSerializer;
+import robocode.robotinterfaces.ITransformable;
+import robocode.util.Collision;
+import robocode.util.Coordinates;
 
-import java.awt.Color;
+import java.awt.*;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Point2D;
 import java.nio.ByteBuffer;
 
-import robocode.robotinterfaces.ITransformable;
-import robocode.util.Collision;
-import robocode.util.Coordinates;
-import net.sf.robocode.security.IHiddenComponentHelper;
-import net.sf.robocode.serialization.ISerializableHelper;
-import net.sf.robocode.serialization.RbSerializer;
+import static java.lang.Math.PI;
 
 /**
  * A class that resembles a radar component for on a ship.
@@ -164,6 +164,7 @@ public class RadarComponent extends ComponentBase {
 	public boolean insideScanArc(Point2D projectile) {
 		return Collision.insideScan(scanArc, projectile.getX(), projectile.getY());
 	}
+
 	
 	
 	public byte getSerializeType(){

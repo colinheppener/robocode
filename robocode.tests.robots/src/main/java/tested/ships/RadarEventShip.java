@@ -22,4 +22,5 @@ public class RadarEventShip extends Ship{
 		//Use a seperator that isn't used anywhere else
 		System.out.print(event.getBearingBack() + "~" + event.getBearingFront() + "~" + Math.toDegrees(event.getBearingRadians()));
 	}
+
 }

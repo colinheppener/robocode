@@ -1,12 +1,12 @@
 package robocode.control.snapshot;
 
-import java.awt.Graphics2D;
-import java.awt.geom.Point2D;
-
 import robocode.naval.ComponentType;
 import robocode.naval.interfaces.IPaint;
 import robocode.naval.interfaces.IRenderImages;
 import robocode.robotinterfaces.ITransformable;
+
+import java.awt.*;
+import java.awt.geom.Point2D;
 
 public interface IComponentSnapshot {
 	/**

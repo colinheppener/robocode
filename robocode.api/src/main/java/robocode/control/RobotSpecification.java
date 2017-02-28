@@ -8,9 +8,9 @@
 package robocode.control;
 
 
-import java.io.File;
-
 import net.sf.robocode.security.IHiddenSpecificationHelper;
+
+import java.io.File;
 
 
 /**

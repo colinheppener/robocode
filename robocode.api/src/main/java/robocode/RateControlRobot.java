@@ -8,8 +8,8 @@
 package robocode;
 
 
-import static java.lang.Math.toRadians;
 import static java.lang.Math.toDegrees;
+import static java.lang.Math.toRadians;
 
 
 /**

@@ -44,6 +44,7 @@ public final class EventManager implements IEventManager {
 	private int currentTopEventPriority;
 	private ScannedRobotEvent dummyScannedRobotEvent;
 	private ScannedShipEvent dummyScannedShipEvent;
+	private ScannedMissileEvent dummyScannedMissileEvent;
 	private Map<String, Event> eventNames;
 
 	private IBasicRobot robot;
@@ -153,6 +154,21 @@ public final class EventManager implements IEventManager {
 	}
 
 	/**
+	 * Returns a list containing all BulletHitMissileEvents currently in the robot's queue.
+	 */
+	public List<BulletHitMissileEvent> getBulletHitMissileEvents() {
+		List<BulletHitMissileEvent> events = new ArrayList<BulletHitMissileEvent>();
+		synchronized (eventQueue) {
+			for (Event e : eventQueue) {
+				if (e instanceof BulletHitMissileEvent) {
+					events.add((BulletHitMissileEvent) e);
+				}
+			}
+		}
+		return events;
+	}
+
+	/**
 	 * Returns a list containing all BulletHitEvents currently in the robot's queue.
 	 */
 	public List<BulletHitEvent> getBulletHitEvents() {
@@ -161,6 +177,21 @@ public final class EventManager implements IEventManager {
 			for (Event e : eventQueue) {
 				if (e instanceof BulletHitEvent) {
 					events.add((BulletHitEvent) e);
+				}
+			}
+		}
+		return events;
+	}
+
+	/**
+	 * Returns a list containing all MissileHitEvents currently in the robot's queue.
+	 */
+	public List<MissileHitEvent> getMissileHitEvents() {
+		List<MissileHitEvent> events = new ArrayList<MissileHitEvent>();
+		synchronized (eventQueue) {
+			for (Event e : eventQueue) {
+				if (e instanceof MissileHitEvent) {
+					events.add((MissileHitEvent) e);
 				}
 			}
 		}
@@ -183,6 +214,21 @@ public final class EventManager implements IEventManager {
 	}
 
 	/**
+	 * Returns a list containing all MissileMissedEvents currently in the robot's queue.
+	 */
+	public List<MissileMissedEvent> getMissileMissedEvents() {
+		List<MissileMissedEvent> events = new ArrayList<MissileMissedEvent>();
+		synchronized (eventQueue) {
+			for (Event e : eventQueue) {
+				if (e instanceof MissileMissedEvent) {
+					events.add((MissileMissedEvent) e);
+				}
+			}
+		}
+		return events;
+	}
+
+	/**
 	 * Returns a list containing all HitByBulletEvents currently in the robot's queue.
 	 */
 	public List<HitByBulletEvent> getHitByBulletEvents() {
@@ -191,6 +237,21 @@ public final class EventManager implements IEventManager {
 			for (Event e : eventQueue) {
 				if (e instanceof HitByBulletEvent) {
 					events.add((HitByBulletEvent) e);
+				}
+			}
+		}
+		return events;
+	}
+
+	/**
+	 * Returns a list containing all HitByMissileEvents currently in the robot's queue.
+	 */
+	public List<HitByMissileEvent> getHitByMissileEvents() {
+		List<HitByMissileEvent> events = new ArrayList<HitByMissileEvent>();
+		synchronized (eventQueue) {
+			for (Event e : eventQueue) {
+				if (e instanceof HitByMissileEvent) {
+					events.add((HitByMissileEvent) e);
 				}
 			}
 		}
@@ -346,6 +407,10 @@ public final class EventManager implements IEventManager {
 	 */
 	public int getScannedShipEventPriority() {
 		return dummyScannedShipEvent.getPriority();
+	}
+
+	public int getScannedMissileEventPriority(){
+		return dummyScannedMissileEvent.getPriority();
 	}
 
 	/**
@@ -536,6 +601,7 @@ public final class EventManager implements IEventManager {
 		eventNames = new HashMap<String, Event>();
 		dummyScannedRobotEvent = new ScannedRobotEvent(null, 0, 0, 0, 0, 0, false);
 		dummyScannedShipEvent= new ScannedShipEvent(null, 0, 0, 0, 0, 0, 0, 0);
+		dummyScannedMissileEvent = new ScannedMissileEvent(null, 0,0,0,0,0,0,0, 0, 0, null);
 		registerEventNames(new BattleEndedEvent(false, null));
 		registerEventNames(new BulletHitBulletEvent(null, null));
 		registerEventNames(new BulletHitEvent(null, 0, null));
@@ -561,6 +627,8 @@ public final class EventManager implements IEventManager {
 		registerEventNames(new RoundEndedEvent(0, 0, 0));
 		registerEventNames(dummyScannedRobotEvent);
 		registerEventNames(dummyScannedShipEvent);
+		registerEventNames(dummyScannedMissileEvent);
+
 		registerEventNames(new SkippedTurnEvent(0));
 		registerEventNames(new StatusEvent(null));
 		registerEventNames(new WinEvent());
@@ -569,6 +637,13 @@ public final class EventManager implements IEventManager {
 		registerEventNames(new MineHitMineEvent(null, null));
 		registerEventNames(new MineHitEvent("", 0, null));
 		registerEventNames(new HitByMineEvent(null));
+
+		//missiles
+		registerEventNames(new MissileHitEvent(null, 0, null));
+		registerEventNames(new MissileHitMissileEvent(null, null));
+		registerEventNames(new MissileMissedEvent(null));
+		registerEventNames(new BulletHitMissileEvent(null, null));
+		registerEventNames(new HitByMissileEvent(0, null));
 
 		// same as any line above but for custom event
 		final DummyCustomEvent customEvent = new DummyCustomEvent();

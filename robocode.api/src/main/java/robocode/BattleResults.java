@@ -36,6 +36,8 @@ public class BattleResults implements java.io.Serializable, Comparable<BattleRes
 	protected double lastSurvivorBonus;
 	protected double bulletDamage;
 	protected double bulletDamageBonus;
+	protected double missileDamage;
+	protected double missileDamageBonus;
 	protected double ramDamage;
 	protected double ramDamageBonus;
 	protected int firsts;
@@ -52,6 +54,8 @@ public class BattleResults implements java.io.Serializable, Comparable<BattleRes
 	 * @param lastSurvivorBonus the last survivor bonus for the robot in the battle.
 	 * @param bulletDamage      the bullet damage score for the robot in the battle.
 	 * @param bulletDamageBonus the bullet damage bonus for the robot in the battle.
+	 * @param missileDamage      the missile damage score for the robot in the battle.
+	 * @param missileDamageBonus the missile damage bonus for the robot in the battle.   
 	 * @param ramDamage         the ramming damage for the robot in the battle.
 	 * @param ramDamageBonus    the ramming damage bonus for the robot in the battle.
 	 * @param firsts            the number of rounds this robot placed first.
@@ -66,6 +70,8 @@ public class BattleResults implements java.io.Serializable, Comparable<BattleRes
 			double lastSurvivorBonus,
 			double bulletDamage,
 			double bulletDamageBonus,
+			double missileDamage,
+			double missileDamageBonus,
 			double ramDamage,
 			double ramDamageBonus,
 			int firsts,
@@ -79,6 +85,8 @@ public class BattleResults implements java.io.Serializable, Comparable<BattleRes
 		this.lastSurvivorBonus = lastSurvivorBonus;
 		this.bulletDamage = bulletDamage;
 		this.bulletDamageBonus = bulletDamageBonus;
+		this.missileDamage = missileDamage;
+		this.missileDamageBonus = missileDamageBonus;
 		this.ramDamage = ramDamage;
 		this.ramDamageBonus = ramDamageBonus;
 		this.firsts = firsts;
@@ -142,12 +150,30 @@ public class BattleResults implements java.io.Serializable, Comparable<BattleRes
 	}
 
 	/**
+	 * Returns the missile damage score of this robot in the battle.
+	 *
+	 * @return the missile damage score of this robot in the battle.
+	 */
+	public int getMissileDamage() {
+		return (int) (missileDamage + 0.5);
+	}
+
+	/**
 	 * Returns the bullet damage bonus of this robot in the battle.
 	 *
 	 * @return the bullet damage bonus of this robot in the battle.
 	 */
 	public int getBulletDamageBonus() {
 		return (int) (bulletDamageBonus + 0.5);
+	}
+
+	/**
+	 * Returns the missile damage bonus of this robot in the battle.
+	 *
+	 * @return the missile damage bonus of this robot in the battle.
+	 */
+	public int getMissileDamageBonus() {
+		return (int) (missileDamageBonus + 0.5);
 	}
 
 	/**
@@ -254,6 +280,8 @@ public class BattleResults implements java.io.Serializable, Comparable<BattleRes
 			serializer.serialize(buffer, obj.lastSurvivorBonus);
 			serializer.serialize(buffer, obj.bulletDamage);
 			serializer.serialize(buffer, obj.bulletDamageBonus);
+			serializer.serialize(buffer, obj.missileDamage);
+			serializer.serialize(buffer, obj.missileDamageBonus);
 			serializer.serialize(buffer, obj.ramDamage);
 			serializer.serialize(buffer, obj.ramDamageBonus);
 			serializer.serialize(buffer, obj.firsts);
@@ -269,6 +297,8 @@ public class BattleResults implements java.io.Serializable, Comparable<BattleRes
 			double lastSurvivorBonus = buffer.getDouble();
 			double bulletDamage = buffer.getDouble();
 			double bulletDamageBonus = buffer.getDouble();
+			double missileDamage = buffer.getDouble();
+			double missileDamageBonus = buffer.getDouble();
 			double ramDamage = buffer.getDouble();
 			double ramDamageBonus = buffer.getDouble();
 			int firsts = buffer.getInt();
@@ -276,7 +306,7 @@ public class BattleResults implements java.io.Serializable, Comparable<BattleRes
 			int thirds = buffer.getInt();
 
 			return new BattleResults(teamLeaderName, rank, score, survival, lastSurvivorBonus, bulletDamage,
-					bulletDamageBonus, ramDamage, ramDamageBonus, firsts, seconds, thirds);
+					bulletDamageBonus, missileDamage, missileDamageBonus, ramDamage, ramDamageBonus, firsts, seconds, thirds);
 		}
 	}
 }

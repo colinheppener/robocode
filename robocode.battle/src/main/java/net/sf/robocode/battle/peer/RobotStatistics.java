@@ -33,6 +33,8 @@ public class RobotStatistics implements ContestantStatistics {
 	private double lastSurvivorBonus;
 	private double bulletDamageScore;
 	private double bulletKillBonus;
+	private double missileDamageScore;
+	private double missileKillBonus;
 	private double rammingDamageScore;
 	private double rammingKillBonus;
 
@@ -43,6 +45,8 @@ public class RobotStatistics implements ContestantStatistics {
 	private double totalLastSurvivorBonus;
 	private double totalBulletDamageScore;
 	private double totalBulletKillBonus;
+	private double totalMissileDamageScore;
+	private double totalMissileKillBonus;
 	private double totalRammingDamageScore;
 	private double totalRammingKillBonus;
 
@@ -73,6 +77,8 @@ public class RobotStatistics implements ContestantStatistics {
 		lastSurvivorBonus = 0;
 		bulletDamageScore = 0;
 		bulletKillBonus = 0;
+		missileDamageScore = 0;
+		missileKillBonus = 0;
 		rammingDamageScore = 0;
 		rammingKillBonus = 0;
 	}
@@ -82,13 +88,15 @@ public class RobotStatistics implements ContestantStatistics {
 		totalLastSurvivorBonus += lastSurvivorBonus;
 		totalBulletDamageScore += bulletDamageScore;
 		totalBulletKillBonus += bulletKillBonus;
+		totalMissileDamageScore += missileDamageScore;
+		totalMissileKillBonus += missileKillBonus;
 		totalRammingDamageScore += rammingDamageScore;
 		totalRammingKillBonus += rammingKillBonus;
 
 		totalScore = robotPeer.isSentryRobot()
 				? 0
-				: totalBulletDamageScore + totalRammingDamageScore + totalSurvivalScore + totalRammingKillBonus
-				+ totalBulletKillBonus + totalLastSurvivorBonus;
+				: totalBulletDamageScore + totalMissileDamageScore + totalRammingDamageScore + totalSurvivalScore + totalRammingKillBonus
+				+ totalBulletKillBonus + totalMissileKillBonus + totalLastSurvivorBonus;
 
 		isInRound = false;
 	}
@@ -109,9 +117,11 @@ public class RobotStatistics implements ContestantStatistics {
 		return totalBulletDamageScore;
 	}
 
-	public double getTotalBulletKillBonus() {
-		return totalBulletKillBonus;
-	}
+	public double getTotalBulletKillBonus() {return totalBulletKillBonus;}
+
+	public double getTotalMissileDamageScore() {return totalMissileDamageScore;	}
+
+	public double getTotalMissileKillBonus() {return totalMissileKillBonus;}
 
 	public double getTotalRammingDamageScore() {
 		return totalRammingDamageScore;
@@ -136,7 +146,7 @@ public class RobotStatistics implements ContestantStatistics {
 	public double getCurrentScore() {
 		return robotPeer.isSentryRobot()
 				? 0
-				: (bulletDamageScore + rammingDamageScore + survivalScore + rammingKillBonus + bulletKillBonus
+				: (bulletDamageScore + missileDamageScore + rammingDamageScore + survivalScore + rammingKillBonus + bulletKillBonus + missileKillBonus
 				+ lastSurvivorBonus);
 	}
 
@@ -155,6 +165,12 @@ public class RobotStatistics implements ContestantStatistics {
 	public double getCurrentBulletKillBonus() {
 		return bulletKillBonus;
 	}
+
+	public double getCurrentMissileDamageScore() {
+		return missileDamageScore;
+	}
+
+	public double getCurrentMissileKillBonus() {return missileKillBonus;}
 
 	public double getCurrentRammingDamageScore() {
 		return rammingDamageScore;
@@ -190,7 +206,34 @@ public class RobotStatistics implements ContestantStatistics {
 		if (isActive) {
 			incrementRobotDamage(robot, damage);
 			bulletDamageScore += damage;
+
 		}
+	}
+
+	void scoreMissileDamage(String robot, double damage) {
+		if (isActive) {
+			incrementRobotDamage(robot, damage);
+			missileDamageScore += damage;
+		}
+	}
+
+	double scoreMissileKill(String robot) {
+		if (isActive) {
+			double bonus;
+
+			if (robotPeer.getTeamPeer() == null) {
+				bonus = getRobotDamage(robot) * 0.20;
+			} else {
+				bonus = 0;
+				for (RobotPeer teammate : robotPeer.getTeamPeer()) {
+					bonus += teammate.getRobotStatistics().getRobotDamage(robot) * 0.20;
+				}
+			}
+
+			missileKillBonus += bonus;
+			return bonus;
+		}
+		return 0;
 	}
 
 	double scoreBulletKill(String robot) {
@@ -270,7 +313,7 @@ public class RobotStatistics implements ContestantStatistics {
 
 	public BattleResults getFinalResults() {
 		return new BattleResults(robotPeer.getTeamName(), rank, totalScore, totalSurvivalScore, totalLastSurvivorBonus,
-				totalBulletDamageScore, totalBulletKillBonus, totalRammingDamageScore, totalRammingKillBonus, totalFirsts,
+				totalBulletDamageScore, totalBulletKillBonus, totalMissileDamageScore, totalMissileKillBonus,totalRammingDamageScore, totalRammingKillBonus, totalFirsts,
 				totalSeconds, totalThirds);
 	}
 

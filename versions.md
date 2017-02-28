@@ -1,3 +1,17 @@
+## Version 1.9.2.6 Alpha (17-05-2014)
+* [Bug-381][]: Improve feedback after entering empty package name during robot creation.
+* [Bug-382][]: Unable to run robocode.bat -- Access Control Exception.
+
+## Version 1.9.2.5 (30-Dec-2015)
+
+### Bug fixes
+* [Bug-378][]: robocode.robocodeGL.system.GLRenderer ClassNotFoundException.
+* [Bug-380][]: Yet another historical bot related bug.
+* Robot Editor: Source files were set to modified (starred) as soon as they were loaded. The modification state remained, even when no changes were made to the source file or when undoing all changes. Therefore the editor would always bring up a dialog with a warning, that the source file needed to be saved before closing the editor.
+
+### Change
+* [Req-160][]: Fixed width font in console. Some systems did not used monospaced font in console windows.
+
 ## Version 1.9.2.4 (20-Nov-2014)
 
 ### Bug fixes
@@ -2986,6 +3000,10 @@ Currently, there is one known issue, which will be fixed with the next Beta or i
 [Bug-373]: http://sourceforge.net/p/robocode/bugs/373/  (Wrong robot size calculation in version 1.9.0 - 1.9.2)
 [Bug-374]: http://sourceforge.net/p/robocode/bugs/374/  (Wrong size report for minirumble in v1.9.2.2)
 [Bug-375]: http://sourceforge.net/p/robocode/bugs/375/  (Wrong width and height returned for .NET robots)
+[Bug-378]: http://sourceforge.net/p/robocode/bugs/378/  (robocode.robocodeGL.system.GLRenderer ClassNotFoundException)
+[Bug-380]: http://sourceforge.net/p/robocode/bugs/380/  (Yet another historical bot related bug)
+[Bug-381]: http://sourceforge.net/p/robocode/bugs/381/  (Improve feedback after entering empty package name during robot creation)
+[Bug-382]: http://sourceforge.net/p/robocode/bugs/382/  (Unable to run robocode.bat -- Access Control Exception)
 
 [Req-1]:   http://sourceforge.net/p/robocode/feature-requests/1/    (Multiple or hyperthreading CPUs (most P4s) hangs Robocode)
 [Req-2]:   http://sourceforge.net/p/robocode/feature-requests/2/    (Keep window size of "New battle" window)
@@ -3067,3 +3085,4 @@ Currently, there is one known issue, which will be fixed with the next Beta or i
 [Req-144]: http://sourceforge.net/p/robocode/feature-requests/144/  (Mac ... start with icon and name)
 [Req-156]: http://sourceforge.net/p/robocode/feature-requests/156/  (Codesize added to properties file)
 [Req-159]: http://sourceforge.net/p/robocode/feature-requests/159/  (Fix overkilled garbage collection on static fields)
+[Req-160]: http://sourceforge.net/p/robocode/feature-requests/160/  (Fixed width font in console)

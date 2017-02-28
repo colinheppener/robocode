@@ -33,10 +33,12 @@ public class Module extends BaseModule {
 	public void afterLoaded(List<IModule> allModules) {
 		RbSerializer.register(ExecCommands.class, RbSerializer.ExecCommands_TYPE);
 		RbSerializer.register(BulletCommand.class, RbSerializer.BulletCommand_TYPE);
+		RbSerializer.register(MissileCommand.class, RbSerializer.MissileCommand_TYPE);
 		RbSerializer.register(TeamMessage.class, RbSerializer.TeamMessage_TYPE);
 		RbSerializer.register(DebugProperty.class, RbSerializer.DebugProperty_TYPE);
 		RbSerializer.register(ExecResults.class, RbSerializer.ExecResults_TYPE);
 		RbSerializer.register(BulletStatus.class, RbSerializer.BulletStatus_TYPE);
+		RbSerializer.register(MissileStatus.class, RbSerializer.MissileStatus_TYPE);
 		RbSerializer.register(RobotStatics.class, RbSerializer.RobotStatics_TYPE);
 		//	Naval	\\
 		RbSerializer.register(ComponentCommands.class, RbSerializer.ComponentsCommand_TYPE);

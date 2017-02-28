@@ -1,16 +1,16 @@
 package robocode.naval;
 
-import java.awt.Color;
-import java.io.Serializable;
-import java.lang.reflect.Array;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-
 import net.sf.robocode.io.Logger;
 import net.sf.robocode.serialization.ISerializableHelper;
 import net.sf.robocode.serialization.RbSerializer;
 import robocode.naval.interfaces.IComponent;
 import robocode.robotinterfaces.IComponents;
+
+import java.awt.*;
+import java.io.Serializable;
+import java.lang.reflect.Array;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
 
 /**
  * Manages the different components that can be assigned to a ship.

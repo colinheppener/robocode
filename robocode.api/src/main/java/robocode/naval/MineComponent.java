@@ -1,11 +1,11 @@
 package robocode.naval;
 
-import java.awt.geom.Point2D;
-import java.nio.ByteBuffer;
-
 import net.sf.robocode.security.IHiddenComponentHelper;
 import net.sf.robocode.serialization.ISerializableHelper;
 import net.sf.robocode.serialization.RbSerializer;
+
+import java.awt.geom.Point2D;
+import java.nio.ByteBuffer;
 
 /**
  * The class that represents the component on the Ship that drops a mine.

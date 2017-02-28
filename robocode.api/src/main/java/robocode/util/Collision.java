@@ -1,21 +1,15 @@
 package robocode.util;
 
-import static robocode.util.Coordinates.getAffineTransformShip;
+import robocode.robotinterfaces.ITransformable;
 
-import java.awt.Point;
-import java.awt.Polygon;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Arc2D;
-import java.awt.geom.Line2D;
-import java.awt.geom.PathIterator;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.*;
+import java.awt.geom.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import robocode.robotinterfaces.ITransformable;
+import static robocode.util.Coordinates.getAffineTransformShip;
 
 /**
  * This class contains more advanced collision detection methods then the
@@ -57,9 +51,9 @@ public class Collision {
 	}
 	
 	/**
-	 * Generates a {@link java.awt.geom.Polygon polygon} that resembles the given
+	 * Generates a {@link Polygon polygon} that resembles the given
 	 * {@link java.awt.geom.Rectangle2D rectangle},
-	 * when the given {@link java.awt.AffineTransform transformation} is applied.
+	 * when the given {@link AffineTransform transformation} is applied.
 	 * @param r The rectangle on which the transformation has to take place.
 	 * @param at The transformation to apply.
 	 * @return A {@code Polygon} representing the transformed rectangle.
@@ -88,9 +82,9 @@ public class Collision {
 	}
 	
 	/**
-	 * Generates a {@link java.awt.geom.Polygon Polygon} that resembles the given
+	 * Generates a {@link Polygon Polygon} that resembles the given
 	 * {@link java.awt.geom.Arc2D Arc2D},
-	 * when the given {@link java.awt.AffineTransform AffineTransform} is applied.
+	 * when the given {@link AffineTransform AffineTransform} is applied.
 	 * @param a The {@code Arc2D} on which the transformation has to take place.
 	 * @param at The {@code AffineTransform} to apply to the {@code Arc2D}.
 	 * @return A {@code Polygon} representing the transformed rectangle.
@@ -190,7 +184,7 @@ public class Collision {
 	 * @param p1 The second polygon that has to intersect.
 	 * @return {@code true} when the polygons intersect. 
 	 */
-	protected static final boolean intersectPolygon(Polygon p0, Polygon p1) {
+	public static final boolean intersectPolygon(Polygon p0, Polygon p1) {
 		ArrayList<Point> v0 = distinct(p0);
 		ArrayList<Point> v1 = distinct(p1);
 		
@@ -341,7 +335,7 @@ public class Collision {
 	 * With this Map you can ask for each side, by which sides of the other Ship you got hit.
 	 * @param p0 The Peer we want to check the Collision of
 	 * @param p1 The Peer that collides with the above peer
-	 * @return
+	 * @return a List with all the points of collision.
 	 */
 	public static Map<Integer, List<Integer>> getCollisionPoints(ITransformable p0, ITransformable p1){
 		Rectangle2D r0 = getRectangle(p0);
@@ -355,6 +349,8 @@ public class Collision {
 		
 		return collisionPointsPolygon(pl0, pl1);
 	}
+
+
 	
 	/**
 	 * Determines whether or not the peer is inside the shape.
@@ -396,7 +392,8 @@ public class Collision {
 	/**
 	 * Determines whether or not the projectile is inside the scan arc.
 	 * @param a The scan arc that should scan the projectile.
-	 * @param projectile The projectile that has to be scanned.
+	 * @param x	x coordinate
+	 * @param y y coordinate
 	 * @return {@code true} if the projectile got scanned; {@code false} otherwise.
 	 */
 	public static final boolean insideScan(Arc2D a, double x, double y) {
@@ -431,9 +428,9 @@ public class Collision {
 	 * THOMA: STILL NEEDS A FEW JUNIT TESTS
 	 * Collision method that is mainly used for mines. 
 	 * Checks whether a Rectangle (standing up straight) collides with a turning rectangle (like that of a ship)
-	 * @param p
-	 * @param rectangle
-	 * @return
+	 * @param p ITransformable
+	 * @param rectangle Rectangle2D to check collision with
+	 * @return boolean of collision
 	 */
 	public static final boolean collide(ITransformable p, Rectangle2D rectangle){
 		Polygon polygonTransformable = getPolygon(getRectangle(p), getAffineTransformShip(p));
@@ -490,5 +487,19 @@ public class Collision {
 		Rectangle2D r = getRectangle(peer);
 		AffineTransform at = getAffineTransformShip(peer);
 		return getPolygon(r, at);
+	}
+
+	/**
+	 * Method to check collision between two boundingboxes.
+	 * @param box1 First boundingbox
+	 * @param box2 Second boundingbox
+	 * @return if the two boundingboxes intersect
+	 */
+	public static boolean doBoxesIntersect(Rectangle2D box1, Rectangle2D box2)
+	{
+		return  (box1.getX() < box2.getX() +box2.getWidth() &&
+				box1.getX() + box1.getWidth() > box2.getX() &&
+				box1.getY() < box2.getY() +box2.getHeight() &&
+				box1.getY() +box1.getHeight() > box2.getY());
 	}
 }

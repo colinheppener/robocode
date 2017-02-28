@@ -42,6 +42,7 @@ public class ImageManager implements IImageManager {
 	private Image navalImageRadar;
 	private Image navalImageMine;
 	private Image navalImageMineComponent;
+	private Image navalImageMissile;
 
 	private static final int MAX_NUM_COLORS = 256;
 
@@ -54,6 +55,7 @@ public class ImageManager implements IImageManager {
 	private HashMap<Integer, RenderImage> navalImageCacheRadar;
 	private HashMap<Integer, RenderImage> navalImageCacheMine;
 	private HashMap<Integer, RenderImage> navalImageCacheMineComponent;
+	private HashMap<Integer, RenderImage> navalImageCacheMissile;
 
 	public ImageManager(ISettingsManager properties) {
 		this.properties = properties;
@@ -86,11 +88,13 @@ public class ImageManager implements IImageManager {
 			navalImageRadar = null;
 			navalImageMine = null;
 			navalImageMineComponent = null;
+			navalImageMissile = null;
 			
 			navalImageCacheBody = new RenderCache<Integer, RenderImage>();
 			navalImageCacheGun = new RenderCache<Integer, RenderImage>();
 			navalImageCacheRadar = new RenderCache<Integer, RenderImage>();
 			navalImageCacheMine = new RenderCache<Integer, RenderImage>();
+			navalImageCacheMissile = new RenderCache<Integer, RenderImage>();
 			navalImageCacheMineComponent = new RenderCache<Integer, RenderImage>();
 
 			getNavalImageBody();
@@ -98,6 +102,7 @@ public class ImageManager implements IImageManager {
 			getNavalImageRadar();
 			getNavalImageMine();
 			getNavalImageMineComponent();
+			getNavalImageMissile();
 		}
 	}
 
@@ -149,7 +154,7 @@ public class ImageManager implements IImageManager {
 		return explosionRenderImages[which][frame];
 	}
 
-	public RenderImage getExplosionDebriseRenderImage() {
+	public RenderImage getExplosionDebrisRenderImage() {
 		if (debriseRenderImage == null) {
 			debriseRenderImage = new RenderImage(getImage("/net/sf/robocode/ui/images/ground/explode_debris.png"));
 		}
@@ -207,6 +212,12 @@ public class ImageManager implements IImageManager {
 			navalImageMine = getImage("/net/sf/robocode/ui/images/naval/Mine.png");
 		}
 		return navalImageMine;
+	}
+	private Image getNavalImageMissile() {
+		if (navalImageMissile == null) {
+			navalImageMissile = getImage("/net/sf/robocode/ui/images/naval/Missile.png");
+		}
+		return navalImageMissile;
 	}
 	private Image getNavalImageMineComponent(){
 		if(navalImageMineComponent == null){
@@ -279,6 +290,17 @@ public class ImageManager implements IImageManager {
 		if(img == null){
 			img = new RenderImage(ImageUtil.createColouredRobotImage(getNavalImageMine(), new Color(color,true)));
 			navalImageCacheMine.put(color, img);
+		}
+		return img;
+	}
+
+
+	public RenderImage getColoredMissileRenderNavalImage(Integer color){
+		RenderImage img = navalImageCacheMissile.get(color);
+
+		if(img == null){
+			img = new RenderImage(getNavalImageMissile());
+			navalImageCacheMissile.put(color, img);
 		}
 		return img;
 	}

@@ -1,12 +1,6 @@
 package robocode.naval.interfaces;
 
-import robocode.Event;
-import robocode.HitByMineEvent;
-import robocode.MineHitEvent;
-import robocode.MineHitMineEvent;
-import robocode.Rules;
-import robocode.ScannedRobotEvent;
-import robocode.ScannedShipEvent;
+import robocode.*;
 import robocode.robotinterfaces.IBasicEvents3;
 
 /**
@@ -30,12 +24,32 @@ public interface IBasicEvents4 extends IBasicEvents3 {
 	 * the given amount of degrees.
 	 *
 	 * @param event the scanned-robot event set by the game
-	 * @see IBasicEvents#onScannedRobot(ScannedRobotEvent)
-	 * @see ScannedRobotEvent
+	 * @see IBasicEvents4#onScannedShip(ScannedShipEvent)
+	 * @see ScannedShipEvent
 	 * @see Event
 	 * @see Rules#RADAR_SCAN_RADIUS
 	 */
 	void onScannedShip(ScannedShipEvent event);
+
+	/**
+	 * This method is called when your robot sees a missile, i.e. when the
+	 * robot's radar scan "hits" a missile.
+	 * You should override it in your robot if you want to be informed of this
+	 * event.
+	 * <p/>
+	 * This is an extension on the {@link IBasicEvents4#onScannedRobot(ScannedRobotEvent) onScannedRobot}
+	 * event. Rather then having the bearing from the center of your ship to
+	 * the other ship. This event contains the bearings for both the front
+	 * and the back canon. The only thing you have to do is rotate them by
+	 * the given amount of degrees.
+	 *
+	 * @param event the scanned-robot event set by the game
+	 * @see IBasicEvents4#onScannedMissile(ScannedMissileEvent)
+	 * @see ScannedMissileEvent
+	 * @see Event
+	 * @see Rules#RADAR_SCAN_RADIUS
+	 */
+	void onScannedMissile(ScannedMissileEvent event);
 	
 	/**
 	 * Triggers when your Mine has hit another Mine.

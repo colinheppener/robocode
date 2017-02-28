@@ -30,17 +30,19 @@ public final class ExecResults implements Serializable {
 	private List<Event> events;
 	private List<TeamMessage> teamMessages;
 	private List<BulletStatus> bulletUpdates;
+	private List<MissileStatus> missileUpdates;
 	private List<MineStatus> mineUpdates;
 	private boolean halt;
 	private boolean shouldWait;
 	private boolean paintEnabled;
 
-	public ExecResults(ExecCommands commands, RobotStatus status, List<Event> events, List<TeamMessage> teamMessages, List<BulletStatus> bulletUpdates, List<MineStatus> mineUpdates, boolean halt, boolean shouldWait, boolean paintEnabled) {
+	public ExecResults(ExecCommands commands, RobotStatus status, List<Event> events, List<TeamMessage> teamMessages, List<BulletStatus> bulletUpdates,List<MissileStatus> missileUpdates ,List<MineStatus> mineUpdates, boolean halt, boolean shouldWait, boolean paintEnabled) {
 		this.commands = commands;
 		this.status = status;
 		this.events = events;
 		this.teamMessages = teamMessages;
 		this.bulletUpdates = bulletUpdates;
+		this.missileUpdates = missileUpdates;
 		this.mineUpdates = mineUpdates;
 		this.halt = halt;
 		this.shouldWait = shouldWait;
@@ -68,6 +70,8 @@ public final class ExecResults implements Serializable {
 	public List<BulletStatus> getBulletUpdates() {
 		return bulletUpdates;
 	}
+
+	public List<MissileStatus> getMissileUpdates(){return missileUpdates;}
 
 	public List<MineStatus> getMineUpdates(){
 		return mineUpdates;

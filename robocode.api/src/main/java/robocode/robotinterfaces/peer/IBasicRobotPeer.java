@@ -452,6 +452,8 @@ public interface IBasicRobotPeer {
 	 */
 	Bullet fire(double power);
 
+	Missile launchMissile(double power);
+
 	/**
 	 * Sets the gun to fire a bullet when the next execution takes place.
 	 * The bullet will travel in the direction the gun is pointing.
@@ -514,6 +516,7 @@ public interface IBasicRobotPeer {
 	 */
 	Bullet setFire(double power);
 
+	Missile setLaunch(double power);
 	/**
 	 * Sets the color of the robot's body.
 	 * <p/>

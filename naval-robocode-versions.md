@@ -1,3 +1,15 @@
+## Naval Robocode Version 0.9.5 (2-Jan-2017)
+
+### Changes
+* Rebased Naval Robocode on Robocode 1.9.2.6 Alpha
+* Ships can launch missiles
+    * Missiles have a blast radius and are detectable by radar
+* Added some new ships
+* Updated ship template
+* Added a Projectile and ProjectilePeer from which bullet and missile classes inherit to reduce duplicate code.
+
+
+
 ## Naval Robocode Version 0.9.2 (02-Mar-2015)
 
 ### Changes

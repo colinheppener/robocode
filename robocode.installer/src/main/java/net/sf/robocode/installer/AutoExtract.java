@@ -298,8 +298,6 @@ public class AutoExtract implements ActionListener {
 		
 		if (argv.length == 1) {
 			suggestedDirName = argv[0];
-		} else if (isWindowsOS()) {
-			suggestedDirName = "C:\\naval-robocode\\";
 		} else {
 			suggestedDirName = System.getProperty("user.home") + File.separator + "naval-robocode" + File.separator;
 		}

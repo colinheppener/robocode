@@ -79,6 +79,11 @@ public class AlienComposition implements IBasicRobot {
 
 		public void onBulletHitBullet(BulletHitBulletEvent e) {}
 
+		@Override
+		public void onBulletHitMissile(BulletHitMissileEvent event) {
+
+		}
+
 		public void onBulletMissed(BulletMissedEvent e) {}
 
 		public void onDeath(DeathEvent e) {}
@@ -90,6 +95,17 @@ public class AlienComposition implements IBasicRobot {
 		public void onRobotDeath(RobotDeathEvent e) {}
 
 		public void onWin(WinEvent e) {}
+
+		public void onMissileHit(MissileHitEvent event){}
+
+
+		public void onMissileHitMissile(MissileHitMissileEvent event) {}
+		/**{@inheritDoc}*/
+
+		public void onMissileMissed(MissileMissedEvent event) {}
+
+
+		public void onHitByMissile(HitByMissileEvent event) {}
 	}
 }
 

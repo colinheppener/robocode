@@ -10,8 +10,9 @@ package robocode.util;
 
 import robocode.control.RandomFactory;
 
-import static java.lang.Math.PI;
 import java.util.Random;
+
+import static java.lang.Math.PI;
 
 
 /**

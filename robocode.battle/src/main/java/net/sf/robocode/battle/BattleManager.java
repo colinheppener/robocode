@@ -57,7 +57,6 @@ public class BattleManager implements IBattleManager {
 
 	private String battleFilename;
 	private String battlePath;
-
 	private int pauseCount = 0;
 	private final AtomicBoolean isManagedTPS = new AtomicBoolean(false);
 

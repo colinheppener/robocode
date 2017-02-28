@@ -4,10 +4,12 @@ import static java.lang.Math.PI;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-import java.awt.Color;
+import java.awt.*;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import net.sf.robocode.peer.*;
+import robocode.Missile;
 import robocode.naval.BlindSpot;
 import robocode.naval.ComponentManager;
 import robocode.naval.MineComponent;
@@ -18,11 +20,6 @@ import robocode.naval.interfaces.IComponent;
 import robocode.robotinterfaces.peer.IBasicShipPeer;
 import net.sf.robocode.host.IHostManager;
 import net.sf.robocode.host.RobotStatics;
-import net.sf.robocode.peer.BulletCommand;
-import net.sf.robocode.peer.BulletCommandShip;
-import net.sf.robocode.peer.IRobotPeer;
-import net.sf.robocode.peer.MineCommand;
-import net.sf.robocode.peer.MineStatus;
 import net.sf.robocode.repository.IRobotItem;
 import net.sf.robocode.security.HiddenAccess;
 import robocode.Bullet;
@@ -62,12 +59,24 @@ public class ShipProxy extends AdvancedRobotProxy implements IBasicShipPeer{
 		execute();
 		return bullet;
 	}
+	
+	public Missile fireComponentMissile(int index){
+		Missile missile = setLaunchImpl(index);
+		execute();
+		return missile;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public Bullet setFireComponent(int index){
 		setCall();
 		return setFireCannonImpl(index);
+	}
+
+	public Missile setFireComponentMissile(int index){
+		setCall();
+		return setLaunchImpl(index);
 	}
 	
 	/**
@@ -103,6 +112,36 @@ public class ShipProxy extends AdvancedRobotProxy implements IBasicShipPeer{
 		bullets.put(nextBulletId, bullet);
 
 		return bullet;	
+	}
+
+	protected Missile setLaunchImpl(int index) {
+		ComponentManager manager = ((ShipStatus)status).getComponents();
+		WeaponComponent weaponComponent = (WeaponComponent)manager.getComponent(index);
+		if(weaponComponent == null){
+			return null;
+		}
+		if (Double.isNaN(weaponComponent.getMissilePower())) {
+			println("SYSTEM: You cannot call fire(NaN)");
+			return null;
+		}
+		if (weaponComponent.getGunHeat() > 0 || getEnergyImpl() == 0) {
+			return null;
+		}
+
+		Missile missile;
+		MissileCommand wrapper;
+		nextMissileId++;
+		double offsetY = weaponComponent.getPivot().getY();
+		missile = new Missile(PI - weaponComponent.getAngle() - getBodyHeading(),
+				getX() + (offsetY * Math.cos(getBodyHeading()+ Math.PI/2)),
+				getBattleFieldHeight() - (getY() + (offsetY * Math.sin(getBodyHeading() + Math.PI/2))),
+				weaponComponent.getFirePower(), statics.getName(), null, true, nextMissileId);
+		wrapper = new MissileCommandShip(weaponComponent.getMissilePower(), false, 0, nextMissileId, index);
+
+		commands.getMissiles().add(wrapper);
+
+		missiles.put(nextMissileId, missile);
+		return missile;
 	}
 	/**
 	 * {@inheritDoc}
@@ -214,6 +253,7 @@ public class ShipProxy extends AdvancedRobotProxy implements IBasicShipPeer{
 		IComponent component = manager.getComponent(index);
 		if(component instanceof WeaponComponent){
 			((WeaponComponent)component).setFirePower(getEnergy(), firepower);
+
 		}
 		
 	}
@@ -230,6 +270,26 @@ public class ShipProxy extends AdvancedRobotProxy implements IBasicShipPeer{
 		}
 		return 1;
 	}
+
+	@Override
+	public void setMissilePowerComponent(int index, double missilepower) {
+		ComponentManager manager = ((ShipStatus)status).getComponents();
+		IComponent component = manager.getComponent(index);
+		if(component instanceof WeaponComponent) {
+			((WeaponComponent) component).setFirePowerMissile(getEnergy(), missilepower);
+		}
+	}
+
+	@Override
+	public double getMissilePowerComponent(int index) {
+		ComponentManager manager = ((ShipStatus)status).getComponents();
+		IComponent component = manager.getComponent(index);
+		if(component instanceof WeaponComponent){
+			return ((WeaponComponent) component).getMissilePower();
+		}
+		return 1;
+	}
+
 
 	/**
 	 * {@inheritDoc}

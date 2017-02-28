@@ -153,9 +153,19 @@ public class AdvancedRobotProxy extends StandardRobotProxy implements IAdvancedR
 		return eventManager.getBulletMissedEvents();
 	}
 
+	public List<MissileMissedEvent> getMissileMissedEvents() {
+		getCall();
+		return eventManager.getMissileMissedEvents();
+	}
+
 	public List<BulletHitBulletEvent> getBulletHitBulletEvents() {
 		getCall();
 		return eventManager.getBulletHitBulletEvents();
+	}
+
+	public List<BulletHitMissileEvent> getBulletHitMissileEvents() {
+		getCall();
+		return eventManager.getBulletHitMissileEvents();
 	}
 
 	public List<BulletHitEvent> getBulletHitEvents() {
@@ -163,9 +173,19 @@ public class AdvancedRobotProxy extends StandardRobotProxy implements IAdvancedR
 		return eventManager.getBulletHitEvents();
 	}
 
+	public List<MissileHitEvent> getMissileHitEvents() {
+		getCall();
+		return eventManager.getMissileHitEvents();
+	}
+
 	public List<HitByBulletEvent> getHitByBulletEvents() {
 		getCall();
 		return eventManager.getHitByBulletEvents();
+	}
+
+	public List<HitByMissileEvent> getHitByMissileEvents() {
+		getCall();
+		return eventManager.getHitByMissileEvents();
 	}
 
 	public List<HitRobotEvent> getHitRobotEvents() {

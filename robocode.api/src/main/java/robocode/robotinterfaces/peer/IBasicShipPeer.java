@@ -1,10 +1,11 @@
 package robocode.robotinterfaces.peer;
 
-import java.awt.Color;
-
 import robocode.Bullet;
 import robocode.Mine;
+import robocode.Missile;
 import robocode.naval.BlindSpot;
+
+import java.awt.*;
 
 /**
  * An interface that describes all the functions in ShipPeer 
@@ -28,6 +29,8 @@ public interface IBasicShipPeer extends IBasicRobotPeer {
 	 * @return A Bullet that give a variety of useful variables
 	 */
 	Bullet fireComponent(int index);
+
+	Missile fireComponentMissile(int index);
 	
 	/**
 	 * Same as {@link IBasicShipPeer#fireComponent(int) fireComponent()} 
@@ -36,7 +39,9 @@ public interface IBasicShipPeer extends IBasicRobotPeer {
 	 * @param index The index of the weapon that has to be fired.
 	 * @return A Bullet that give a variety of useful variables
 	 */
-	Bullet setFireComponent(int index);		
+	Bullet setFireComponent(int index);
+
+	Missile setFireComponentMissile(int index);
 	
 	/**
 	 * Returns the angleRemaining of the given index in radians
@@ -90,7 +95,11 @@ public interface IBasicShipPeer extends IBasicRobotPeer {
 	 * @return the firePower of the component
 	 */
 	double getFirePowerComponent(int index);
-	
+
+	void setMissilePowerComponent(int index, double missilepower);
+
+	double getMissilePowerComponent(int index);
+
 	/**
 	 * Returns the gunheat of the specified component
 	 * Only works for WeaponComponents

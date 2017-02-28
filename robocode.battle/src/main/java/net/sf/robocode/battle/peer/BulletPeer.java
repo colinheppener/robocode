@@ -7,17 +7,16 @@
  *******************************************************************************/
 package net.sf.robocode.battle.peer;
 
-
 import net.sf.robocode.peer.BulletStatus;
 import net.sf.robocode.security.HiddenAccess;
 import robocode.*;
 import robocode.control.snapshot.BulletState;
+import robocode.naval.NavalRules;
 import robocode.util.Collision;
-
-import java.awt.geom.Line2D;
 
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
+import static net.sf.robocode.io.Logger.logMessage;
 
 import java.util.List;
 
@@ -30,41 +29,11 @@ import java.util.List;
  * @author Titus Chen (constributor)
  * @author Pavel Savara (constributor)
  */
-public class BulletPeer /*implements IProjectile*/{
+public class BulletPeer extends ProjectilePeer{
 
-	private static final int EXPLOSION_LENGTH = 17;
+	BulletState state;
 
-	private static final int RADIUS = 3;
-
-	protected final RobotPeer owner;
-
-	private final BattleRules battleRules;
-	private final int bulletId;
-
-	protected RobotPeer victim;
-
-	protected BulletState state;
-
-	private double heading;
-
-	protected double x;
-	protected double y;
-
-	private double lastX;
-	private double lastY;
-
-	protected double power;
-
-	private double deltaX;
-	private double deltaY;
-
-	private final Line2D.Double boundingLine = new Line2D.Double();
-
-	protected int frame; // Do not set to -1
-
-	private final int color;
-
-	protected int explosionImageIndex; // Do not set to -1
+	private int bulletId;
 
 	BulletPeer(RobotPeer owner, BattleRules battleRules, int bulletId) {
 		super();
@@ -84,79 +53,51 @@ public class BulletPeer /*implements IProjectile*/{
 	 * @param color The color of the bullet. This parameter is why this constructor was made.
 	 */
 	BulletPeer(ShipPeer owner, BattleRules battleRules, int bulletId, int color){
-		super();
-		this.owner = owner;
-		this.battleRules = battleRules;
-		this.bulletId = bulletId;
-		state = BulletState.FIRED;
+		this(owner, battleRules, bulletId);
 		this.color = color;
 	}
 
-	private void checkBulletCollision(List<BulletPeer> bullets) {
-		for (BulletPeer b : bullets) {
-			if (b != null && b != this && b.isActive() && intersect(b.boundingLine)) {
-				// Check if one of the bullets belongs to a sentry robot and is within the safe zone
-				if (owner.isSentryRobot() || b.getOwner().isSentryRobot()) {
-					int sentryBorderSize = battleRules.getSentryBorderSize();
-					if (x > sentryBorderSize && x < (battleRules.getBattlefieldWidth() - sentryBorderSize)
-							&& y > sentryBorderSize && y < (battleRules.getBattlefieldHeight() - sentryBorderSize)) {
-
-						continue; // Continue, as the sentry should not interfere with bullets in the safe zone 
+	public void update(List<RobotPeer> robots, List<BulletPeer> bullets, List<MissilePeer> missiles) {
+		frame++;
+		if (isActive()) {
+			updateMovement();
+			checkWallCollision();
+			if (isActive()) {
+				if(HiddenAccess.getNaval()){
+					checkCollisionWithShip(robots);
+					if (bullets != null) {
+						checkBulletCollisionWithBullet(bullets);
+					}
+					if(isActive() && missiles != null){
+						checkBulletCollisionWithMissile(missiles);
 					}
 				}
+				else{
+					checkRobotCollision(robots);
+				}
 
-				state = BulletState.HIT_BULLET;
-				frame = 0;
-				x = lastX;
-				y = lastY;
 
-				b.state = BulletState.HIT_BULLET;
-				b.frame = 0;
-				b.x = b.lastX;
-				b.y = b.lastY;
 
-				// Bugfix #366
-				owner.addEvent(new BulletHitBulletEvent(createBullet(false), b.createBullet(true)));
-				b.owner.addEvent(new BulletHitBulletEvent(b.createBullet(false), createBullet(true)));
-				break;
 			}
 		}
+		updateBulletState();
+		owner.addBulletStatus(createStatus());
 	}
 
-	private Bullet createBullet(boolean hideOwnerName) {
-		String ownerName = (owner == null) ? null : (hideOwnerName ? getNameForEvent(owner) : owner.getName());
-		String victimName = (victim == null) ? null : (hideOwnerName ? victim.getName() : getNameForEvent(victim));
+	private void updateMovement() {
+		lastX = x;
+		lastY = y;
 
-		return new Bullet(heading, x, y, power, ownerName, victimName, isActive(), bulletId);
+		double v = getVelocity();
+
+		x += v * sin(heading);
+		y += v * cos(heading);
+
+		boundingBox.setRect(x-(getPower()), y-(getPower()), getPower()*2, getPower()*2);
+		boundingLine.setLine(lastX, lastY, x, y);
 	}
 
-	private BulletStatus createStatus() {
-		return new BulletStatus(bulletId, x, y, victim == null ? null : getNameForEvent(victim), isActive());
-	}
-
-	private String getNameForEvent(RobotPeer otherRobot) {
-		if (battleRules.getHideEnemyNames() && !owner.isTeamMate(otherRobot)) {
-			return otherRobot.getAnnonymousName();
-		}
-		return otherRobot.getName();
-	}
-
-	// Workaround for http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6457965
-	private boolean intersect(Line2D.Double line) {
-		double x1 = line.x1, x2 = line.x2, x3 = boundingLine.x1, x4 = boundingLine.x2;
-		double y1 = line.y1, y2 = line.y2, y3 = boundingLine.y1, y4 = boundingLine.y2;
-
-		double dx13 = (x1 - x3), dx21 = (x2 - x1), dx43 = (x4 - x3);
-		double dy13 = (y1 - y3), dy21 = (y2 - y1), dy43 = (y4 - y3);
-
-		double dn = dy43 * dx21 - dx43 * dy21;
-
-		double ua = (dx43 * dy13 - dy43 * dx13) / dn;
-		double ub = (dx21 * dy13 - dy21 * dx13) / dn;
-
-		return (ua >= 0 && ua <= 1) && (ub >= 0 && ub <= 1);
-	}
-
+	/**This checkRobotCollision method is used for the regular robocode version. NOT NAVAL.**/
 	private void checkRobotCollision(List<RobotPeer> robots) {
 		for (RobotPeer otherRobot : robots) {
 			if (!(otherRobot == null || otherRobot == owner || otherRobot.isDead())
@@ -166,12 +107,12 @@ public class BulletPeer /*implements IProjectile*/{
 				frame = 0;
 				victim = otherRobot;
 
-				double damage = Rules.getBulletDamage(power);
+				double damage = NavalRules.getBulletDamage(power);
 
 				if (owner.isSentryRobot()) {
 					if (victim.isSentryRobot()) {
 						damage = 0;
-					} else {					
+					} else {
 						int range = battleRules.getSentryBorderSize();
 						if (x > range && x < (battleRules.getBattlefieldWidth() - range) && y > range
 								&& y < (battleRules.getBattlefieldHeight() - range)) {
@@ -205,7 +146,7 @@ public class BulletPeer /*implements IProjectile*/{
 				}
 
 				if (!victim.isSentryRobot()) {
-					owner.updateEnergy(Rules.getBulletHitBonus(power));
+					owner.updateEnergy(NavalRules.getBulletHitBonus(power));
 				}
 
 				otherRobot.addEvent(
@@ -236,122 +177,200 @@ public class BulletPeer /*implements IProjectile*/{
 			}
 		}
 	}
-	
-	/**
-	 * Function that checks whether the bullet has his a Ship.
-	 * @param robots A list of RobotPeers (ships) currently in the BattleField.
-	 */
-	private void checkShipCollision(List<RobotPeer> robots) {
-		for (RobotPeer otherRobot : robots) {
-			if (!(otherRobot == null || otherRobot == owner || otherRobot.isDead())) {
-				if(Collision.collide(otherRobot, boundingLine)){
-					state = BulletState.HIT_VICTIM;
-					frame = 0;
-					victim = otherRobot;
-	
-					double damage = Rules.getBulletDamage(power);
-	
-					double score = damage;
-					if (score > otherRobot.getEnergy()) {
-						score = otherRobot.getEnergy();
-					}
-					otherRobot.updateEnergy(-damage);
-	
-					boolean teamFire = (owner.getTeamPeer() != null && owner.getTeamPeer() == otherRobot.getTeamPeer());
-	
-					if (!teamFire && !otherRobot.isSentryRobot()) {
-						owner.getRobotStatistics().scoreBulletDamage(otherRobot.getName(), score);
-					}
-	
-					if (otherRobot.getEnergy() <= 0 && otherRobot.isAlive()) {
-						otherRobot.kill();
-						if (!teamFire && !otherRobot.isSentryRobot()) {
-							double bonus = owner.getRobotStatistics().scoreBulletKill(otherRobot.getName());
-							if (bonus > 0) {
-								owner.println(
-										"SYSTEM: Bonus for killing "
-												+ (owner.getNameForEvent(otherRobot) + ": " + (int) (bonus + .5)));
-							}
-						}
-					}
-	
-					if (!victim.isSentryRobot()) {
-						owner.updateEnergy(Rules.getBulletHitBonus(power));
-					}
-	
-					otherRobot.addEvent(
-							new HitByBulletEvent(
-									robocode.util.Utils.normalRelativeAngle(heading + Math.PI - otherRobot.getBodyHeading()),
-									createBullet(true))); // Bugfix #366
-	
-					owner.addEvent(
-							new BulletHitEvent(owner.getNameForEvent(otherRobot), otherRobot.getEnergy(), createBullet(false))); // Bugfix #366
-	
-					double newX, newY;
-	
-					if (otherRobot.getBoundingBox().contains(lastX, lastY)) {
-						newX = lastX;
-						newY = lastY;
-	
-						setX(newX);
-						setY(newY);
-					} else {
-						newX = x;
-						newY = y;
-					}
-	
-					deltaX = newX - otherRobot.getX();
-					deltaY = newY - otherRobot.getY();
-	
-					break;
+
+	/**Collision methods**/
+	void collideBulletWithShip(RobotPeer otherRobot){
+		setBulletStateBulletHitShip();
+
+		updateEnergyAndScoreBulletHitShip(otherRobot);
+		updateKillWithBullet(otherRobot);
+
+		addBulletHitShipEvent(otherRobot);
+
+		setNewBulletCoordinatesShipCollision(otherRobot);
+	}
+
+	private void checkBulletCollisionWithBullet(List<BulletPeer> otherBullets) {//check if bullet hit another bullet
+		for (BulletPeer b : otherBullets) {
+			if (b != null && b != this && b.isActive() && Collision.doBoxesIntersect(getBoundingBox(),b.getBoundingBox())) {
+				if(getOwner() != b.getOwner()) {
+					setBulletStateBulletHitBullet(b);
+					addBulletHitBulletEvent(b);
 				}
+				break;
 			}
 		}
 	}
 
-	private void checkWallCollision() {
-		if ((x - RADIUS <= 0) || (y - RADIUS <= 0) || (x + RADIUS >= battleRules.getBattlefieldWidth())
-				|| (y + RADIUS >= battleRules.getBattlefieldHeight())) {
-			state = BulletState.HIT_WALL;
-			frame = 0;
-			owner.addEvent(new BulletMissedEvent(createBullet(false))); // Bugfix #366
+	private void checkBulletCollisionWithMissile(List<MissilePeer> missiles) {//check if bullet hit a missile
+		for (MissilePeer missile : missiles) {
+			if (missile != null && missile.isActive() && Collision.doBoxesIntersect(getBoundingBox(), missile.getBoundingBox())) {
+				setBulletStateBulletHitMissile();
+				x = lastX;
+				y = lastY;
+
+				missile.detonate();
+				addBulletHitMissileEvent(missile);
+				break;
+			}
 		}
+	}
+
+	/**State methods**/
+	void updateBulletState() {
+		switch (state) {
+			case FIRED:
+				// Note that the bullet must be in the FIRED state before it goes to the MOVING state
+				if (frame > 0) {
+					state = BulletState.MOVING;
+				}
+				break;
+
+			case HIT_BULLET:
+			case HIT_VICTIM:
+			case HIT_WALL:
+			case EXPLODED:
+				// Note that the bullet explosion must be ended before it goes into the INACTIVE state
+				if (frame >= getExplosionLength()) {
+					state = BulletState.INACTIVE;
+				}
+				break;
+
+			default:
+		}
+	}
+
+	Bullet createBullet(boolean hideOwnerName) {
+		String ownerName = (owner == null) ? null : (hideOwnerName ? getNameForEvent(owner) : owner.getName());
+		String victimName = (victim == null) ? null : (hideOwnerName ? victim.getName() : getNameForEvent(victim));
+
+		return new Bullet(heading, x, y, power, ownerName, victimName, isActive(), bulletId);
+	}
+
+	private BulletStatus createStatus() {
+		return new BulletStatus(bulletId, x, y, victim == null ? null : getNameForEvent(victim), isActive());
+	}
+
+	void setState(BulletState newState) {
+		state = newState;
+	}
+
+	private void setBulletStateBulletHitBullet(BulletPeer b) {
+		setState(BulletState.HIT_BULLET);
+		frame = 0;
+		x = lastX;
+		y = lastY;
+
+		b.setState(BulletState.HIT_BULLET);
+		b.frame = 0;
+		b.x = b.lastX;
+		b.y = b.lastY;
+	}
+
+	private void setBulletStateBulletHitShip() {
+		setState(BulletState.HIT_VICTIM);
+		frame = 0;
+	}
+
+	private void setBulletStateBulletHitMissile() {
+		setState(BulletState.HIT_BULLET);
+		frame = 0;
+	}
+
+	void setBulletStateMissileHitBullet() {
+		setState(BulletState.HIT_BULLET);
+		frame = 0;
+		x = getLastX();
+		y = getLastY();
+	}
+
+	/**Event methods**/
+	private void addBulletHitBulletEvent(BulletPeer otherBullet){
+		getOwner().addEvent(new BulletHitBulletEvent(createBullet(false), otherBullet.createBullet(true)));
+		otherBullet.getOwner().addEvent(new BulletHitBulletEvent(otherBullet.createBullet(false), createBullet(true)));
+		logMessage("Event: " +getOwner().getName()+" his Bullet hit "+otherBullet.getOwner().getName()+ "his Bullet.");
+
+	}
+
+	private void addBulletHitShipEvent(RobotPeer otherRobot) {
+		otherRobot.addEvent(
+				new HitByBulletEvent(
+						robocode.util.Utils.normalRelativeAngle(heading + Math.PI - otherRobot.getBodyHeading()),
+						createBullet(true)));
+		getOwner().addEvent(
+				new BulletHitEvent(getOwner().getNameForEvent(otherRobot), otherRobot.getEnergy(), createBullet(false)));
+	}
+
+	private void addBulletHitMissileEvent(MissilePeer missile){
+		getOwner().addEvent(new BulletHitMissileEvent(createBullet(false), missile.createMissile(true)));
+		logMessage("Event: " +getOwner().getName()+" his Bullet hit "+missile.getOwner().getName()+ "his Missile.");
+	}
+
+	/**Update Energy and Score methods**/
+	private void updateEnergyAndScoreBulletHitShip(RobotPeer otherRobot) {
+		double damage = NavalRules.getBulletDamage(power);
+
+		double score = damage;
+		if (score > otherRobot.getEnergy()) {
+			score = otherRobot.getEnergy();
+		}
+
+		otherRobot.updateEnergy(-damage);
+		getOwner().getRobotStatistics().scoreBulletDamage(otherRobot.getName(), score);
+		getOwner().updateEnergy(NavalRules.getBulletHitBonus(power));
+
+	}
+
+	private void updateKillWithBullet(RobotPeer otherRobot){
+		if (otherRobot.getEnergy() <= 0 && otherRobot.isAlive()) {
+			otherRobot.kill();
+			double bonus = getOwner().getRobotStatistics().scoreBulletKill(otherRobot.getName());
+			if (bonus > 0) {
+				getOwner().println(
+						"SYSTEM: Bonus for killing "
+								+ (getOwner().getNameForEvent(otherRobot) + ": " + (int) (bonus + .5)));
+			}
+		}
+	}
+
+
+	boolean isActive() {
+		return state.isActive();
+	}
+
+	/**----GETTERS & SETTERS----**/
+	private void setNewBulletCoordinatesShipCollision(RobotPeer otherRobot) {
+		double newX, newY;
+
+		if (otherRobot.getBoundingBox().contains(lastX, lastY)) {
+			newX = lastX;
+			newY = lastY;
+
+			setX(newX);
+			setY(newY);
+		} else {
+			newX = x;
+			newY = y;
+		}
+
+		deltaX = newX - otherRobot.getX();
+		deltaY = newY - otherRobot.getY();
+
 	}
 
 	public int getBulletId() {
 		return bulletId;
 	}
 
-	public int getFrame() {
-		return frame;
+	String getNameForEvent(RobotPeer otherRobot) {
+		if (battleRules.getHideEnemyNames() && !owner.isTeamMate(otherRobot)) {
+			return otherRobot.getAnnonymousName();
+		}
+		return otherRobot.getName();
 	}
 
-	public double getHeading() {
-		return heading;
-	}
-
-	public RobotPeer getOwner() {
-		return owner;
-	}
-
-	public double getPower() {
-		return power;
-	}
-
-	public double getVelocity() {
-		return Rules.getBulletSpeed(power);
-	}
-
-	public RobotPeer getVictim() {
-		return victim;
-	}
-
-	public double getX() {
-		return x;
-	}
-
-	public double getY() {
-		return y;
+	public BulletState getState() {
+		return state;
 	}
 
 	public double getPaintX() {
@@ -362,104 +381,8 @@ public class BulletPeer /*implements IProjectile*/{
 		return (state == BulletState.HIT_VICTIM && victim != null) ? victim.getY() + deltaY : y;
 	}
 
-	public boolean isActive() {
-		return state.isActive();
-	}
-
-	public BulletState getState() {
-		return state;
-	}
-
-	public int getColor() {
-		return color;
-	}
-
-	public void setHeading(double newHeading) {
-		heading = newHeading;
-	}
-
-	public void setPower(double newPower) {
-		power = newPower;
-	}
-
-	public void setVictim(RobotPeer newVictim) {
-		victim = newVictim;
-	}
-
-	public void setX(double newX) {
-		x = lastX = newX;
-	}
-
-	public void setY(double newY) {
-		y = lastY = newY;
-	}
-
-	public void setState(BulletState newState) {
-		state = newState;
-	}
-
-	public void update(List<RobotPeer> robots, List<BulletPeer> bullets) {
-		frame++;
-		if (isActive()) {
-			updateMovement();
-			checkWallCollision();
-			if (isActive()) {
-				if(HiddenAccess.getNaval()){
-					checkShipCollision(robots);
-				}
-				else{
-					checkRobotCollision(robots);
-				}
-			}
-			if (isActive() && bullets != null) {
-				checkBulletCollision(bullets);
-			}
-		}
-		updateBulletState();
-		owner.addBulletStatus(createStatus());
-	}
-
-	protected void updateBulletState() {
-		switch (state) {
-		case FIRED:
-			// Note that the bullet must be in the FIRED state before it goes to the MOVING state
-			if (frame > 0) {
-				state = BulletState.MOVING;
-			}
-			break;
-
-		case HIT_BULLET:
-		case HIT_VICTIM:
-		case HIT_WALL:
-		case EXPLODED:
-			// Note that the bullet explosion must be ended before it goes into the INACTIVE state
-			if (frame >= getExplosionLength()) {
-				state = BulletState.INACTIVE;
-			}
-			break;
-
-		default:
-		}
-	}
-
-	private void updateMovement() {
-		lastX = x;
-		lastY = y;
-
-		double v = getVelocity();
-
-		x += v * sin(heading);
-		y += v * cos(heading);
-
-		boundingLine.setLine(lastX, lastY, x, y);
-	}
-
-	public int getExplosionImageIndex() {
-		return explosionImageIndex;
-	}
-
-	protected int getExplosionLength() {
-		return EXPLOSION_LENGTH;
+	public double getVelocity() {
+		return NavalRules.getBulletSpeed(power);
 	}
 
 	@Override

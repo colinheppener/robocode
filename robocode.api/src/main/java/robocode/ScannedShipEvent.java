@@ -7,17 +7,17 @@
  *******************************************************************************/
 package robocode;
 
-import static java.lang.Math.PI;
-
-import java.awt.Graphics2D;
-import java.nio.ByteBuffer;
-
-import robocode.robotinterfaces.IBasicEvents;
-import robocode.robotinterfaces.IBasicEvents4;
-import robocode.robotinterfaces.IBasicRobot;
 import net.sf.robocode.peer.IRobotStatics;
 import net.sf.robocode.serialization.ISerializableHelper;
 import net.sf.robocode.serialization.RbSerializer;
+import robocode.robotinterfaces.IBasicEvents;
+import robocode.robotinterfaces.IBasicEvents4;
+import robocode.robotinterfaces.IBasicRobot;
+
+import java.awt.*;
+import java.nio.ByteBuffer;
+
+import static java.lang.Math.PI;
 
 /**
  * Extension on {@link robocode.ScannedRobotEvent}
@@ -27,7 +27,7 @@ import net.sf.robocode.serialization.RbSerializer;
  */
 public class ScannedShipEvent extends Event {
 	private static final long serialVersionUID = 1L;
-	private final static int DEFAULT_PRIORITY = 10; // _FOR_SCANNED_SHIP_EVENT
+	private final static int DEFAULT_PRIORITY = 10;
 	
 	/* ScannedRobotEvent - Duplicate */
 	protected final String name;

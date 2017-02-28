@@ -34,6 +34,10 @@ public interface ITurnSnapshot {
 	
 	IMineSnapshot[] getMines();
 
+	IMissileSnapshot[] getMissiles();
+
+	IShipSnapshot[] getShips();
+
 	/**
 	 * Returns the current TPS (turns per second) rate.
 	 *

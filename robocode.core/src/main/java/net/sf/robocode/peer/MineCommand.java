@@ -51,5 +51,4 @@ public class MineCommand {
 			return new MineCommand(power, bulletId);
 		}
 	}
-
 }

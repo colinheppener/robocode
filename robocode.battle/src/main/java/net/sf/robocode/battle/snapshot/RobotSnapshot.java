@@ -9,12 +9,14 @@ package net.sf.robocode.battle.snapshot;
 
 
 import net.sf.robocode.battle.peer.RobotPeer;
+import net.sf.robocode.battle.peer.ShipPeer;
 import net.sf.robocode.peer.DebugProperty;
 import net.sf.robocode.peer.ExecCommands;
 import net.sf.robocode.serialization.IXmlSerializable;
 import net.sf.robocode.serialization.XmlReader;
 import net.sf.robocode.serialization.SerializableOptions;
 import net.sf.robocode.serialization.XmlWriter;
+import robocode.Ship;
 import robocode.control.snapshot.IRobotSnapshot;
 import robocode.control.snapshot.IScoreSnapshot;
 import robocode.control.snapshot.RobotState;
@@ -213,8 +215,13 @@ public /*final*/ class RobotSnapshot implements Serializable, IXmlSerializable, 
 		if (readoutText) {
 			outputStreamSnapshot = robot.readOutText();
 		}
-
-		robotScoreSnapshot = new ScoreSnapshot(robot.getName(), robot.getRobotStatistics());
+		if(isShip) {
+			ShipPeer ship = (ShipPeer) robot;
+			robotScoreSnapshot = new ScoreSnapshot(ship.getName(), ship.getShipStatistics());
+		}
+		else{
+			robotScoreSnapshot = new ScoreSnapshot(robot.getName(), robot.getRobotStatistics());
+		}
 	}
 
 	@Override
@@ -392,6 +399,11 @@ public /*final*/ class RobotSnapshot implements Serializable, IXmlSerializable, 
 	 */
 	public boolean isShip() {
 		return isShip;
+	}
+
+	@Override
+	public boolean isProjectile() {
+		return false;
 	}
 
 	/**

@@ -1,8 +1,9 @@
 package robocode.naval;
 
+import robocode.Robot;
+
 import static java.lang.Math.abs;
 import static java.lang.Math.max;
-import robocode.Robot;
 
 /**
  * Class that discribes the rules of Naval Robocode.
@@ -23,12 +24,24 @@ public class NavalRules {
 			HEIGHT = 207,
 			HALF_WIDTH_OFFSET = (WIDTH >> 1),
 			HALF_HEIGHT_OFFSET = (HEIGHT >> 1);
-	
+
+	/**
+	 * The width and height of a Missile.
+	 */
+	public static final int
+			MISSILE_WIDTH=80,
+			MISSILE_HEIGHT = 80,
+			HALF_MISSILE_WIDTH_OFFSET = MISSILE_WIDTH/2,
+			HALF_MISSILE_HEIGHT_OFFSET = MISSILE_HEIGHT/2;
+
+
 	/**
 	 * The Pivot Point is this much pixels from the center of the ship into the prow.
 	 */
 	public static final double PROW_OFFSET = 50.0d;
-	
+
+
+
 	/**
 	 * The offsets from the Pivot point(PROW_OFFSET), for the different components.
 	 */
@@ -93,6 +106,17 @@ public class NavalRules {
 	 * The maximum mine power. Minepower can't be set higher than this.
 	 */
 	public static final double MAX_MINE_POWER = 15;
+
+	/**
+	 * The minimum missile power. Missilepower can't be set lower than this.
+	 */
+	public static final double MIN_MISSILE_POWER = 10;
+
+	/**
+	 * The maximum missile power. Missilepower can't be set higher than this.
+	 */
+	public static final double MAX_MISSILE_POWER = 30;
+
 
 	/**
 	 * The maximum turning rate of the Ship, in degrees, which is
@@ -234,6 +258,62 @@ public class NavalRules {
 	}
 
 	/**
+	 * Returns the amount of given bonus when a Ship's missile hits an opponent
+	 * Ship given a specific missile power.
+	 *
+	 * When a missile hits something all used energy points are being returned, to make missiles worth using.
+	 *
+	 * @param missilePower The power of the missile
+	 * @return missile hit bonus in energy points.
+	 */
+	public static double getMissileHitBonus(double missilePower) {
+		return 1.5 * missilePower;
+	}
+
+	/**
+	 *  Returns the speed of a missile given a specific missile power measured in pixels/turn.
+	 *
+	 * @param missilePower The power of the missile
+	 * @return missileSpeed in pixels/turn.
+	 */
+	public static double getMissileSpeed(double missilePower) {
+		double speed = 20 - missilePower/4;
+		return speed;
+	}
+
+	/**
+	 * Returns the distance the missile will travel before detonating.
+	 * @param missilePower The power of the missile.
+	 * @return distance the missile will be able to travel
+	 */
+	public static double getMissileDistance(double missilePower){
+		return missilePower * 50;
+	}
+
+	/**
+	 * Returns the amount of damage a missile will do when it directly hits an enemy.
+	 *
+	 * @param missilePower The power of the missile.
+	 * @return The damage the missile will do in energy points.
+	 */
+	public static double getMissileDamage(double missilePower)
+	{
+		double damage = missilePower * 2;
+		if(missilePower == 30){
+			damage +=10;
+		}
+		return damage;
+	}
+
+	/**
+	 * Returns the size of the blast radius a missile creates when detonating.
+	 *
+	 * @param missilePower The power of the missile.
+	 * @return The size of the blast radius which is used to check whether a ship is present within the blast radius
+	 */
+	public static double getMissileBlastRadius(double missilePower){return missilePower *8;}
+
+	/**
 	 * Returns the amount of bonus given when a Ship's bullet hits an opponent
 	 * Ship given a specific bullet power.
 	 *
@@ -256,16 +336,16 @@ public class NavalRules {
 	}
 
 	/**
-	 * Returns the heat produced by firing the gun given a specific bullet
+	 * Returns the heat produced by firing the gun given a specific bullet or missile
 	 * power.
 	 *
-	 * @param bulletPower the energy power of the bullet.
+	 * @param power the energy power of the bullet or missile.
 	 * @return gun heat
 	 */
-	public static double getGunHeat(double bulletPower) {
-		return 1 + (bulletPower / 2);
+	public static double getGunHeat(double power) {
+		return 1 + (power / 2);
 	}
-	
+
 	public static double getMineRecharge(double minePower){
 		return 2 + (minePower / 5);
 	}
@@ -305,4 +385,7 @@ public class NavalRules {
 	public static double getBlastRadius(double minePower){
 		return minePower * 7;
 	}
+
+
 }
+

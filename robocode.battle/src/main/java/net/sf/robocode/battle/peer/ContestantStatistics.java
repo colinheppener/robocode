@@ -27,6 +27,10 @@ public interface ContestantStatistics { // NO_UCD (use default)
 
 	double getTotalBulletKillBonus();
 
+	double getTotalMissileDamageScore();
+
+	double getTotalMissileKillBonus();
+
 	double getTotalRammingDamageScore();
 
 	double getTotalRammingKillBonus();
@@ -50,6 +54,8 @@ public interface ContestantStatistics { // NO_UCD (use default)
 	double getCurrentRammingDamageScore();
 
 	double getCurrentRammingKillBonus();
+
+	double getCurrentMissileKillBonus();
 
 	BattleResults getFinalResults();
 

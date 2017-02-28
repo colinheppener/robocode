@@ -6,4 +6,4 @@
 @REM http://robocode.sourceforge.net/license/epl-v10.html
 @REM
 
-java -Xmx512M -cp libs/robocode.jar robocode.Robocode %*
+java -Xmx512M -Dsun.java2d.opengl=true -cp libs/robocode.jar robocode.Robocode %*

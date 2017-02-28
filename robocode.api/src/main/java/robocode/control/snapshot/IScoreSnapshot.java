@@ -61,6 +61,20 @@ public interface IScoreSnapshot extends Comparable<Object> {
 	double getTotalBulletKillBonus();
 
 	/**
+	 * Returns the total missile damage score.
+	 *
+	 * @return the total missile damage score.
+	 */
+	double getTotalMissileDamageScore();
+
+	/**
+	 * Returns the total missile kill bonus.
+	 *
+	 * @return the total missile kill bonus.
+	 */
+	double getTotalMissileKillBonus();
+
+	/**
 	 * Returns the total ramming damage score.
 	 *
 	 * @return the total ramming damage score.
@@ -131,6 +145,20 @@ public interface IScoreSnapshot extends Comparable<Object> {
 	double getCurrentBulletKillBonus();
 
 	/**
+	 * Returns the current bullet damage score.
+	 *
+	 * @return the current bullet damage score.
+	 */
+	double getCurrentMissileDamageScore();
+
+	/**
+	 * Returns the current bullet kill bonus.
+	 *
+	 * @return the current bullet kill bonus.
+	 */
+	double getCurrentMissileKillBonus();
+
+	/**
 	 * Returns the current ramming damage score.
 	 *
 	 * @return the current ramming damage score.
@@ -143,4 +171,13 @@ public interface IScoreSnapshot extends Comparable<Object> {
 	 * @return the current ramming kill bonus.
 	 */
 	double getCurrentRammingKillBonus();
+
+	double getCurrentMineDamageScore();
+
+	double getCurrentMineKillBonus();
+
+	double getTotalMineDamageScore();
+
+	double getTotalMineKillBonus();
+
 }

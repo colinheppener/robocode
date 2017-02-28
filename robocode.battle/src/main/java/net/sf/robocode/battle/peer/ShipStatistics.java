@@ -31,7 +31,7 @@ public class ShipStatistics extends RobotStatistics{
 	}
 	
 	/**
-	 * Generates the total score by adding up all total scores per catagory.
+	 * Generates the total score by adding up all total scores per category.
 	 */
 	public void generateTotals() {
 		super.generateTotals();
@@ -64,7 +64,7 @@ public class ShipStatistics extends RobotStatistics{
 	
 	public BattleResults getFinalResults() {
 		return new NavalBattleResults(getRobotPeer().getTeamName(), getRank(), totalScore, getTotalSurvivalScore(), getTotalLastSurvivorBonus(),
-				getTotalBulletDamageScore(), getTotalBulletKillBonus(), getTotalRammingDamageScore(), getTotalRammingKillBonus(),
+				getTotalBulletDamageScore(), getTotalBulletKillBonus(), getTotalMissileDamageScore(), getTotalMissileKillBonus(), getTotalRammingDamageScore(), getTotalRammingKillBonus(),
 				totalMineDamageScore, totalMineKillBonus,
 				getTotalFirsts(),getTotalSeconds(), getTotalThirds());
 	}
@@ -80,5 +80,13 @@ public class ShipStatistics extends RobotStatistics{
 			mineDamageScore += damage;
 		}
 	}
+
+	public double getTotalMineDamageScore(){return totalMineDamageScore;}
+
+	public double getTotalMineKillBonus(){return totalMineKillBonus; }
+
+	public double getMineDamageScore(){return mineDamageScore;}
+
+	public double getMineKillBonus(){ return mineKillBonus; }
 
 }

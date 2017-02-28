@@ -1,14 +1,14 @@
 package robocode;
 
-import java.awt.Graphics2D;
-import java.nio.ByteBuffer;
-
 import net.sf.robocode.peer.IRobotStatics;
 import net.sf.robocode.serialization.ISerializableHelper;
 import net.sf.robocode.serialization.RbSerializer;
 import robocode.robotinterfaces.IBasicEvents;
 import robocode.robotinterfaces.IBasicEvents4;
 import robocode.robotinterfaces.IBasicRobot;
+
+import java.awt.*;
+import java.nio.ByteBuffer;
 
 /**
  * A ScannedProjectileEvent is sent to

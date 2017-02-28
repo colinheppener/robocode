@@ -2,11 +2,9 @@ package net.sf.robocode.battle.snapshot.components;
 
 import static java.lang.Math.abs;
 
-import java.awt.AlphaComposite;
-import java.awt.Color;
-import java.awt.Composite;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.geom.Arc2D;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.Serializable;
 
@@ -34,6 +32,7 @@ public class RadarComponentSnapshot extends BaseComponentSnapshot{
 		shortAttribute = "rc";
 		shortName = "radarcomponent";
 	}
+
 	public RadarComponentSnapshot(RadarComponent radarComponent){
 		super(radarComponent);
 //		scanArc = radarComponent.getScanArc();
@@ -76,7 +75,6 @@ public class RadarComponentSnapshot extends BaseComponentSnapshot{
 		// Composite
 		final Composite savedComposite = g.getComposite();
 		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.2f));
-
 		// Color
 		g.setColor(scanColor);
 
@@ -87,9 +85,11 @@ public class RadarComponentSnapshot extends BaseComponentSnapshot{
 			g.draw(arc);
 		}
 
+
 		// Restore original(s)
 		g.setComposite(savedComposite);
 	}
+
 	
 	@Override
 	public void writeXml(XmlWriter writer, SerializableOptions options) throws IOException {

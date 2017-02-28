@@ -23,6 +23,7 @@ import robocode.exception.DeathException;
 import robocode.exception.DisabledException;
 import robocode.exception.RobotException;
 import robocode.exception.WinException;
+import robocode.naval.NavalRules;
 import robocode.robotinterfaces.peer.IBasicRobotPeer;
 import robocode.util.Utils;
 
@@ -56,6 +57,9 @@ public class BasicRobotProxy extends HostingRobotProxy implements IBasicRobotPee
 	protected final Map<Integer, Bullet> bullets = new ConcurrentHashMap<Integer, Bullet>();
 	protected int nextBulletId = 1; // 0 is used for bullet explosions 
 
+	protected final Map<Integer, Missile> missiles = new ConcurrentHashMap<Integer, Missile>();
+	protected int nextMissileId = 1; // 0 is used for bullet explosions 
+
 	private final AtomicInteger setCallCount = new AtomicInteger(0);
 	private final AtomicInteger getCallCount = new AtomicInteger(0);
 
@@ -72,7 +76,7 @@ public class BasicRobotProxy extends HostingRobotProxy implements IBasicRobotPee
 		graphicsProxy = new Graphics2DSerialized();
 
 		// dummy
-		execResults = new ExecResults(null, null, null, null, null, null, false, false, false);
+		execResults = new ExecResults(null, null, null, null,null, null, null, false, false, false);
 
 		setSetCallCount(0);
 		setGetCallCount(0);
@@ -116,6 +120,11 @@ public class BasicRobotProxy extends HostingRobotProxy implements IBasicRobotPee
 		setCall();
 		return setFireImpl(power);
 	}
+	
+	public Missile setLaunch(double power){
+		setCall();
+		return setLaunchImpl(power);
+	}
 
 	// blocking actions
 	public void execute() {
@@ -148,6 +157,14 @@ public class BasicRobotProxy extends HostingRobotProxy implements IBasicRobotPee
 
 		execute();
 		return bullet;
+	}
+	
+	public Missile launchMissile(double power)
+	{
+		Missile missile = setLaunch(power);
+		
+		execute();
+		return missile;
 	}
 
 	// fast setters
@@ -417,6 +434,20 @@ public class BasicRobotProxy extends HostingRobotProxy implements IBasicRobotPee
 			}
 		}
 
+		if (execResults.getMissileUpdates() != null) {
+			for (MissileStatus missileStatus : execResults.getMissileUpdates()) {
+				final Missile missile = missiles.get(missileStatus.missileId);
+
+				if (missile != null) {
+					HiddenAccess.update(missile, missileStatus.x, missileStatus.y, missileStatus.victimName,
+							missileStatus.isActive);
+					if (!missileStatus.isActive) {
+						missiles.remove(missileStatus.missileId);
+					}
+				}
+			}
+		}
+
 		// add new team messages
 		loadTeamMessages(execResults.getTeamMessages());
 
@@ -524,6 +555,50 @@ public class BasicRobotProxy extends HostingRobotProxy implements IBasicRobotPee
 
 		return bullet;
 	}
+
+	private final Missile setLaunchImpl(double power) {
+		if (Double.isNaN(power)) {
+			println("SYSTEM: You cannot call fire(NaN)");
+			return null;
+		}
+		if (getGunHeatImpl() > 0 || getEnergyImpl() == 0) {
+			return null;
+		}
+
+		power = min(getEnergyImpl(), min(max(power, NavalRules.MIN_MISSILE_POWER), NavalRules.MAX_MISSILE_POWER));
+
+		Missile missile;
+		MissileCommand wrapper;
+		Event currentTopEvent = eventManager.getCurrentTopEvent();
+
+		nextMissileId++;
+
+		if (currentTopEvent != null && currentTopEvent.getTime() == status.getTime() && !statics.isAdvancedRobot()
+				&& status.getGunHeadingRadians() == status.getRadarHeadingRadians()
+				&& ScannedRobotEvent.class.isAssignableFrom(currentTopEvent.getClass())) {
+			// this is angle assisted missile
+			ScannedRobotEvent e = (ScannedRobotEvent) currentTopEvent;
+			double fireAssistAngle = Utils.normalAbsoluteAngle(status.getHeadingRadians() + e.getBearingRadians());
+
+			missile = new Missile(fireAssistAngle, getX(), getY(), power, statics.getName(), null, true, nextMissileId);
+			wrapper = new MissileCommand(power, true, fireAssistAngle, nextMissileId);
+		} else {
+			// this is normal missile
+			missile = new Missile(status.getGunHeadingRadians(), getX(), getY(), power, statics.getName(), null, true,
+					nextMissileId);
+			wrapper = new MissileCommand(power, false, 0, nextMissileId);
+		}
+
+		firedEnergy += power;
+		firedHeat += NavalRules.getGunHeat(power);
+
+		commands.getMissiles().add(wrapper);
+
+		missiles.put(nextMissileId, missile);
+
+		return missile;
+	}
+	
 
 	protected final void setTurnGunImpl(double radians) {
 		commands.setGunTurnRemaining(radians);

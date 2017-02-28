@@ -1,22 +1,17 @@
 package robocode;
 
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.io.File;
-import java.util.Vector;
-
 import robocode.naval.BlindSpot;
 import robocode.naval.NavalRules;
-import robocode.robotinterfaces.IAdvancedEvents;
-import robocode.robotinterfaces.IAdvancedRobot;
-import robocode.robotinterfaces.IBasicEvents;
-import robocode.robotinterfaces.IBasicEvents4;
-import robocode.robotinterfaces.IPaintEvents;
-import robocode.robotinterfaces.IPaintRobot;
-import robocode.robotinterfaces.IShip;
-import robocode.robotinterfaces.peer.*;
+import robocode.robotinterfaces.*;
+import robocode.robotinterfaces.peer.IAdvancedRobotPeer;
+import robocode.robotinterfaces.peer.IBasicShipPeer;
+import robocode.robotinterfaces.peer.IStandardRobotPeer;
 import robocode.util.Utils;
+
+import java.awt.*;
+import java.io.File;
+import java.util.Vector;
 
 /**
  * This is the improved version of the {@link Ship} which acts far more like a ship.
@@ -150,7 +145,9 @@ public class Ship extends _RobotBase implements IShip, IBasicEvents4, IPaintEven
 	public void fireFrontCannon(double power) { setFirePower(NavalRules.IDX_WEAPON_FRONT, power); fire(NavalRules.IDX_WEAPON_FRONT); }
 	/** {@inheritDoc} **/
 	public void fireBackCannon(double power) { setFirePower(NavalRules.IDX_WEAPON_BACK, power); fire(NavalRules.IDX_WEAPON_BACK); }
-	
+	/** {@inheritDoc} **/
+	public void launchMissile(double power) {setMissileFirePower(NavalRules.IDX_WEAPON_FRONT, power); launch(NavalRules.IDX_WEAPON_FRONT);}
+
 	/** {@inheritDoc} **/
 	public void setCourseDegrees(double angle) {
 		setTurnRightDegrees(Utils.normalRelativeAngleDegrees(angle - getBodyHeadingDegrees()));
@@ -297,13 +294,48 @@ public class Ship extends _RobotBase implements IShip, IBasicEvents4, IPaintEven
 	}
 
 	/**
+	 * Function called internally to launch a missile at the specified index(always front cannon)
+	 * @param index The index of the component
+	 */
+	private Missile launch(int index){
+		if (peer != null) {
+			return ((IBasicShipPeer) peer).fireComponentMissile(index);
+		} else {
+			uninitializedException();
+		}
+		return null;
+	}
+
+/*	private Missile fireMissile(int index){
+		if(peer!=null){
+			return ((IBasicShipPeer) peer).fireComponentMissile(index);
+		} else{
+			uninitializedException();
+		}
+		return null;
+	}*/
+
+	/**
 	 * Function called internally to set the fire power of the component at the specified index.
 	 * @param index The index of the component the firepower needs to be set for
 	 * @param power The fire power you want the component to be set at.
 	 */
 	private void setFirePower(int index, double power) {
 		if (peer != null) {
-			((IBasicShipPeer) peer).setFirePowerComponent(index, power);;
+			((IBasicShipPeer) peer).setFirePowerComponent(index, power);
+		} else {
+			uninitializedException();
+		}
+	}
+
+	/**
+	 * Function called internally to set the missile power of the component at the specified index.
+	 * @param index The index of the component the firepower needs to be set for
+	 * @param missilePower The fire power you want the component to be set at.
+	 */
+	private void setMissileFirePower(int index, double missilePower) {
+		if (peer != null) {
+			((IBasicShipPeer) peer).setMissilePowerComponent(index, missilePower);
 		} else {
 			uninitializedException();
 		}
@@ -313,7 +345,7 @@ public class Ship extends _RobotBase implements IShip, IBasicEvents4, IPaintEven
 	 * Returns the FirePower of the specified component.
 	 * Returns 0 if the Component isn't a WeaponComponent.
 	 * @param index
-	 * @return
+	 * @return the FirePower of the specified component
 	 */
 	public double getFirePower(int index){
 		if (peer != null) {
@@ -354,11 +386,21 @@ public class Ship extends _RobotBase implements IShip, IBasicEvents4, IPaintEven
 	/**{@inheritDoc}*/
 	@Override public void onBulletHitBullet(BulletHitBulletEvent event) {}
 	/**{@inheritDoc}*/
+	@Override public void onBulletHitMissile(BulletHitMissileEvent event) {}
+	/**{@inheritDoc}*/
 	@Override public void onBulletMissed(BulletMissedEvent event) {}
 	/**{@inheritDoc}*/
 	@Override public void onDeath(DeathEvent event) {}
 	/**{@inheritDoc}*/
 	@Override public void onHitByBullet(HitByBulletEvent event) {}
+	/**{@inheritDoc}*/
+	@Override public void onMissileHit(MissileHitEvent event){}
+	/**{@inheritDoc}*/
+	@Override public void onMissileHitMissile(MissileHitMissileEvent event) {}
+	/**{@inheritDoc}*/
+	@Override public void onMissileMissed(MissileMissedEvent event) {}
+	/**{@inheritDoc}*/
+	public void onHitByMissile(HitByMissileEvent event) {}
 	/**{@inheritDoc}*/
 	@Override public void onHitRobot(HitRobotEvent event) {}
 	/**{@inheritDoc}*/
@@ -371,6 +413,8 @@ public class Ship extends _RobotBase implements IShip, IBasicEvents4, IPaintEven
 	@Override public void onRoundEnded(RoundEndedEvent event) {}
 	/**{@inheritDoc}*/
 	@Override public void onScannedShip(ScannedShipEvent event) {}
+	/**{@inheritDoc}*/
+	@Override public void onScannedMissile(ScannedMissileEvent event){}
 	/**{@inheritDoc}*/
 	@Override public void onStatus(StatusEvent event) {}
 	/**{@inheritDoc}*/
@@ -753,6 +797,32 @@ public class Ship extends _RobotBase implements IShip, IBasicEvents4, IPaintEven
 	}
 
 	/**
+	 * Returns a vector containing all BulletHitMissileEvents currently in the
+	 * ship's queue. You might, for example, call this while processing another
+	 * event.
+	 * <p/>
+	 * Example:
+	 * <pre>
+	 *   for (BulletHitMissileEvent event : getBulletHitMissileEvents()) {
+	 *       <i>// do something with the event</i>
+	 *   }
+	 * </pre>
+	 *
+	 * @return a vector containing all BulletHitMissileEvents currently in the
+	 *         robot's queue
+	 * @see #onBulletHitMissile(BulletHitMissileEvent)
+	 * @see BulletHitMissileEvent
+	 * @see #getAllEvents()
+	 */
+	public Vector<BulletHitMissileEvent> getBulletHitMissileEvents() {
+		if (peer != null) {
+			return new Vector<BulletHitMissileEvent>(((IAdvancedRobotPeer) peer).getBulletHitMissileEvents());
+		}
+		uninitializedException();
+		return null; // never called
+	}
+
+	/**
 	 * Returns a vector containing all BulletHitEvents currently in the robot's
 	 * queue. You might, for example, call this while processing another event.
 	 * <p/>
@@ -770,6 +840,31 @@ public class Ship extends _RobotBase implements IShip, IBasicEvents4, IPaintEven
 	 * @see #getAllEvents()
 	 */
 	public Vector<BulletHitEvent> getBulletHitEvents() {
+		if (peer != null) {
+			return new Vector<BulletHitEvent>(((IAdvancedRobotPeer) peer).getBulletHitEvents());
+		}
+		uninitializedException();
+		return null; // never called
+	}
+
+	/**
+	 * Returns a vector containing all MissileHitEvents currently in the robot's
+	 * queue. You might, for example, call this while processing another event.
+	 * <p/>
+	 * Example:
+	 * <pre>
+	 *   for (MissileHitEvent event: getMissileHitEvents()) {
+	 *       <i>// do something with the event</i>
+	 *   }
+	 * </pre>
+	 *
+	 * @return a vector containing all MissileHitEvent currently in the robot's
+	 *         queue
+	 * @see #onMissileHit(MissileHitEvent)
+	 * @see MissileHitEvent
+	 * @see #getAllEvents()
+	 */
+	public Vector<BulletHitEvent> getMissileHitEvents() {
 		if (peer != null) {
 			return new Vector<BulletHitEvent>(((IAdvancedRobotPeer) peer).getBulletHitEvents());
 		}
@@ -798,6 +893,32 @@ public class Ship extends _RobotBase implements IShip, IBasicEvents4, IPaintEven
 	public Vector<BulletMissedEvent> getBulletMissedEvents() {
 		if (peer != null) {
 			return new Vector<BulletMissedEvent>(((IAdvancedRobotPeer) peer).getBulletMissedEvents());
+		}
+		uninitializedException();
+		return null; // never called
+	}
+
+	/**
+	 * Returns a vector containing all MissileMissedEvents currently in the
+	 * robot's queue. You might, for example, call this while processing another
+	 * event.
+	 * <p/>
+	 * Example:
+	 * <pre>
+	 *   for (MissileMissedEvent event : getMissileMissedEvents()) {
+	 *       <i>// do something with the event</i>
+	 *   }
+	 * </pre>
+	 *
+	 * @return a vector containing all MissileMissedEvents currently in the
+	 *         robot's queue
+	 * @see #onMissileMissed(MissileMissedEvent) onMissileMissed(MissileMissedEvent)
+	 * @see MissileMissedEvent
+	 * @see #getAllEvents()
+	 */
+	public Vector<MissileMissedEvent> getMissileMissedEvents() {
+		if (peer != null) {
+			return new Vector<MissileMissedEvent>(((IAdvancedRobotPeer) peer).getMissileMissedEvents());
 		}
 		uninitializedException();
 		return null; // never called
@@ -868,6 +989,32 @@ public class Ship extends _RobotBase implements IShip, IBasicEvents4, IPaintEven
 	public Vector<HitByBulletEvent> getHitByBulletEvents() {
 		if (peer != null) {
 			return new Vector<HitByBulletEvent>(((IAdvancedRobotPeer) peer).getHitByBulletEvents());
+		}
+		uninitializedException();
+		return null; // never called
+	}
+
+	/**
+	 * Returns a vector containing all HitByMissileEvents currently in the
+	 * robot's queue. You might, for example, call this while processing
+	 * another event.
+	 * <p/>
+	 * Example:
+	 * <pre>
+	 *   for (HitByMissileEvent event : getHitByMissileEvents()) {
+	 *       <i>// do something with the event</i>
+	 *   }
+	 * </pre>
+	 *
+	 * @return a vector containing all HitByMissileEvents currently in the
+	 *         robot's queue
+	 * @see #onHitByMissile(HitByMissileEvent) onHitByMissile(HitByMissileEvent)
+	 * @see HitByMissileEvent
+	 * @see #getAllEvents()
+	 */
+	public Vector<HitByMissileEvent> getHitByMissileEvents() {
+		if (peer != null) {
+			return new Vector<HitByMissileEvent>(((IAdvancedRobotPeer) peer).getHitByMissileEvents());
 		}
 		uninitializedException();
 		return null; // never called
@@ -1206,6 +1353,8 @@ public class Ship extends _RobotBase implements IShip, IBasicEvents4, IPaintEven
 		}
 		return null;
 	}
+
+
 	
 	public void setMineComponentColor(Color color){
 		setComponentColor(color, NavalRules.IDX_MINE_PLACER);
@@ -1365,4 +1514,6 @@ public class Ship extends _RobotBase implements IShip, IBasicEvents4, IPaintEven
 	public void setCourseRadians(double angle) {
 		setTurnRightRadians(Utils.normalRelativeAngle(angle - getBodyHeadingRadians()));
 	}
+
+
 }

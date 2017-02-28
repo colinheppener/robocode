@@ -1,10 +1,10 @@
 package robocode.naval.interfaces;
 
-import java.awt.Color;
-
 import robocode.HitRobotEvent;
 import robocode.HitWallEvent;
 import robocode.robotinterfaces.IBasicRobot;
+
+import java.awt.*;
 
 
 /**
@@ -72,7 +72,7 @@ import robocode.robotinterfaces.IBasicRobot;
 		
 	/**
 	 * Sets the maximum amount of knots you want to travel per turn.
-	 * @param knots The amount of knots at which the ship has to travel.
+	 * @param maxKnots The amount of knots at which the ship has to travel.
 	 */
 	  void setMaxKnots(double maxKnots);
 		
@@ -110,9 +110,9 @@ import robocode.robotinterfaces.IBasicRobot;
 	 *
 	 * @param distance the distance to move ahead measured in pixels.
 	 *                 If this value is negative, the robot will move back instead of ahead.
-	 * @see #back(double)
-	 * @see #onHitWall(HitWallEvent)
-	 * @see #onHitRobot(HitRobotEvent)
+	 * @see #setBack(double)
+	 * @see robocode.Ship#onHitWall(HitWallEvent)
+	 * @see robocode.Ship#onHitRobot(HitRobotEvent)
 	 */
 	  void setAhead(double distance);
 		
@@ -239,9 +239,6 @@ import robocode.robotinterfaces.IBasicRobot;
 	 * @return the angle remaining in the robots's turn, in degrees
 	 * @see #getBodyTurnRemainingRadians() getTurnRemainingRadians()
 	 * @see #getDistanceRemaining() getDistanceRemaining()
-	 * @see #getGunTurnRemaining() getGunTurnRemaining()
-	 * @see #getGunTurnRemainingRadians() getGunTurnRemainingRadians()
-	 * @see #getRadarTurnRemaining() getRadarTurnRemaining()
 	 * @see #getRadarTurnRemainingRadians() getRadarTurnRemainingRadians()
 	 */
 	  double getBodyTurnRemainingDegrees();

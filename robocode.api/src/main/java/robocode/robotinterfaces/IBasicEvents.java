@@ -82,6 +82,92 @@ public interface IBasicEvents {
 	 * @see Event
 	 */
 	void onBulletHitBullet(BulletHitBulletEvent event);
+	/**
+	 * This method is called when one of your missiles hits a bullet.
+	 * You should override it in your ship if you want to be informed of this
+	 * event.
+	 * <p/>
+	 * Example:
+	 * <pre>
+	 *   public void onBulletHitMissile(BulletHitMissileEvent event) {
+	 *       out.println("My missile hit a bullet fired by " + event.getBullet().getName() + "!");
+	 *   }
+	 * </pre>
+	 *
+	 * @param event the bullet-hit-missile event set by the game
+	 * @see BulletHitMissileEvent
+	 * @see Event
+	 */
+	void onBulletHitMissile(BulletHitMissileEvent event);
+	/**
+	 * This method is called when one of your missiles hits a missile.
+	 * You should override it in your ship if you want to be informed of this
+	 * event.
+	 * <p/>
+	 * Example:
+	 * <pre>
+	 *   public void onMissileHitMissile(MissileHitMissileEvent event) {
+	 *       out.println("My missile hit a missile launched by " + event.getMissile().getName() + "!");
+	 *   }
+	 * </pre>
+	 *
+	 * @param event the missile-hit-missile event set by the game
+	 * @see MissileHitMissileEvent
+	 * @see Event
+	 */
+	void onMissileHitMissile(MissileHitMissileEvent event);
+	/**
+	 * This method is called when your ship is hit by a missile.
+	 * You should override it in your ship if you want to be informed of this
+	 * event.
+	 * <p/>
+	 * Example:
+	 * <pre>
+	 *   void onHitByMissile(HitByMissileEvent event) {
+	 *       out.println(event.getRobotName() + "'s missile hit me!");
+	 *   }
+	 * </pre>
+	 *
+	 * @param event the hit-by-missile event set by the game
+	 * @see HitByMissileEvent
+	 * @see Event
+	 */
+	void onHitByMissile(HitByMissileEvent event);
+	/**
+	 * This method is called when one of your missiles hits another robot.
+	 * You should override it in your ship if you want to be informed of this
+	 * event.
+	 * <p/>
+	 * Example:
+	 * <pre>
+	 *   public void onMissileHit(MissileHitEvent event) {
+	 *       out.println("I hit " + event.getName() + " with a missile!");
+	 *   }
+	 * </pre>
+	 *
+	 * @param event the bullet-hit event set by the game
+	 * @see MissileHitEvent
+	 * @see Event
+	 */
+	void onMissileHit(MissileHitEvent event);
+
+	/**
+	 * This method is called when one of your missiles misses, i.e. hits a wall or detonates at a certain distance.
+	 * You should override it in your robot if you want to be informed of this
+	 * event.
+	 * <p/>
+	 * Example:
+	 * <pre>
+	 *   public void onMissileMissed(MissileMissedEvent event) {
+	 *       out.println("Drat, I missed.");
+	 *   }
+	 * </pre>
+	 *
+	 * @param event the missile-missed event set by the game
+	 * @see MissileMissedEvent
+	 * @see Event
+	 */
+	void onMissileMissed(MissileMissedEvent event);
 
 	/**
 	 * This method is called when one of your bullets misses, i.e. hits a wall.

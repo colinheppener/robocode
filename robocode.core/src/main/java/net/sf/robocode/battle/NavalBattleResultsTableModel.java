@@ -51,7 +51,7 @@ public class NavalBattleResultsTableModel extends javax.swing.table.AbstractTabl
 	}
 
 	public int getColumnCount() {
-		return 14;
+		return 16;
 	}
 
 	@Override
@@ -78,25 +78,30 @@ public class NavalBattleResultsTableModel extends javax.swing.table.AbstractTabl
 		case 6:
 			return "Bullet Bonus";
 
-		case 7:
+			case 7:
+				return "Missile Dmg";
+			case 8:
+				return "Missile Bonus";
+
+		case 9:
 			return "Ram Dmg * 2";
 
-		case 8:
+		case 10:
 			return "Ram Bonus";
 			
-		case 9:
+		case 11:
 			return "Mine Damage";
 			
-		case 10:
-			return "Mine Bonus";
-			
-		case 11:
-			return " 1sts ";
-
 		case 12:
-			return " 2nds ";
+			return "Mine Bonus";
 
 		case 13:
+			return " 1sts ";
+
+		case 14:
+			return " 2nds ";
+
+		case 15:
 			return " 3rds ";
 
 		default:
@@ -156,26 +161,31 @@ public class NavalBattleResultsTableModel extends javax.swing.table.AbstractTabl
 
 		case 6:
 			return "" + (int) (statistics.getBulletDamageBonus() + 0.5);
+			case 7:
+				return "" + (int) (statistics.getMissileDamage()+0.5);
 
-		case 7:
-			return "" + (int) (statistics.getRamDamage() + 0.5);
-
-		case 8:
-			return "" + (int) (statistics.getRamDamageBonus() + 0.5);
+			case 8:
+				return "" + (int) (statistics.getMissileDamageBonus()+0.5);
 
 		case 9:
+			return "" + (int) (statistics.getRamDamage() + 0.5);
+
+		case 10:
+			return "" + (int) (statistics.getRamDamageBonus() + 0.5);
+
+		case 11:
 			return "" + (int) (statistics.getMineDamage() + 0.5);
 			
-		case 10:
+		case 12:
 			return "" + (int) (statistics.getMineDamageBonus() + 0.5);
 			
-		case 11:
+		case 13:
 			return "" + statistics.getFirsts();
 
-		case 12:
+		case 14:
 			return "" + statistics.getSeconds();
 
-		case 13:
+		case 15:
 			return "" + statistics.getThirds();
 
 		default:

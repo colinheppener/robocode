@@ -9,10 +9,7 @@ package net.sf.robocode.battle.snapshot;
 
 
 import net.sf.robocode.battle.Battle;
-import net.sf.robocode.battle.peer.BulletPeer;
-import net.sf.robocode.battle.peer.MinePeer;
-import net.sf.robocode.battle.peer.RobotPeer;
-import net.sf.robocode.battle.peer.ShipPeer;
+import net.sf.robocode.battle.peer.*;
 import net.sf.robocode.serialization.IXmlSerializable;
 import net.sf.robocode.serialization.XmlReader;
 import net.sf.robocode.serialization.SerializableOptions;
@@ -44,6 +41,8 @@ public final class TurnSnapshot implements java.io.Serializable, IXmlSerializabl
 	
 	private List<IMineSnapshot> mines;
 
+	private List<IMissileSnapshot> missiles;
+
 	/** Current TPS (turns per second) */
 	private int tps;
 
@@ -67,34 +66,34 @@ public final class TurnSnapshot implements java.io.Serializable, IXmlSerializabl
 	 * @param readoutText {@code true} if the output text from the robots must be included in the snapshot;
 	 *                    {@code false} otherwise.
 	 */
-	public TurnSnapshot(Battle battle, List<RobotPeer> battleRobots, List<BulletPeer> battleBullets, List<MinePeer> battleMines, boolean readoutText) {
+	public TurnSnapshot(Battle battle, List<RobotPeer> battleRobots, List<BulletPeer> battleBullets, List<MissilePeer> battleMissiles, List<MinePeer> battleMines, boolean readoutText) {
 		robots = new ArrayList<IRobotSnapshot>();
 		bullets = new ArrayList<IBulletSnapshot>();
 		mines = new ArrayList<IMineSnapshot>();
-		
-		boolean isNaval = battleRobots.get(0) instanceof ShipPeer; 	//Probably not the best way to check
-		if(isNaval){
-			//only add mines and ships if we're in a naval environment
+		missiles = new ArrayList<IMissileSnapshot>();
+
+		boolean isNaval = battleRobots.get(0) instanceof ShipPeer;
+
+		if(isNaval) {
 			for (RobotPeer robotPeer : battleRobots) {
-				robots.add(new ShipSnapshot((ShipPeer)robotPeer, readoutText));
+				robots.add(new ShipSnapshot((ShipPeer) robotPeer, readoutText));
 			}
-			for(MinePeer minePeer : battleMines){
+			for (MinePeer minePeer : battleMines) {
 				mines.add(new MineSnapshot(minePeer));
 			}
+			for (MissilePeer missilePeer : battleMissiles) {
+				missiles.add(new MissileSnapshot(missilePeer));
+			}
 		}
-		else{
-			for (RobotPeer robotPeer : battleRobots) {
+		else {
+			for(RobotPeer robotPeer : battleRobots){
 				robots.add(new RobotSnapshot(robotPeer, readoutText));
 			}
 		}
-		
 
 		for (BulletPeer bulletPeer : battleBullets) {
 			bullets.add(new BulletSnapshot(bulletPeer));
 		}
-		
-		
-
 		tps = battle.getTPS();
 		turn = battle.getTime();
 		round = battle.getRoundNum();
@@ -123,6 +122,9 @@ public final class TurnSnapshot implements java.io.Serializable, IXmlSerializabl
 		return mines.toArray(new IMineSnapshot[mines.size()]);
 	}
 
+	public IMissileSnapshot[] getMissiles() { return missiles.toArray(new IMissileSnapshot[missiles.size()]);}
+
+	public IShipSnapshot[] getShips(){return robots.toArray(new IShipSnapshot[robots.size()]);}
 	/**
 	 * {@inheritDoc}
 	 */

@@ -1,8 +1,8 @@
 package robocode.naval.interfaces;
 
-import java.awt.Color;
-
 import robocode.naval.BlindSpot;
+
+import java.awt.*;
 
 /**
  * @author Thales B.V. / Thomas Hakkers
@@ -52,18 +52,18 @@ public interface IFrontCannonFunctions {
 	  double getFrontCannonHeadingDegrees();
 	
 	/**
-	 * Returns a copy of the BlindSpot that the back cannon has.
+	 * Returns a copy of the BlindSpot that the front cannon has.
 	 * The BlindSpot offers great utilities that will help you out working with a BlindSpot.
-	 * @see BlindSpot.getFarLeft()		Furthest you can move to the left
-	 * @see Blindspot.getFarRight()    	Furthest you can move to the right
-	 * @see Blindspot.inBlindSpot()		Returns whether the destination is within the BlindSpot
-	 * @return The BlindSpot of the back cannon.
+	 * @see BlindSpot#getFarLeft()		Furthest you can move to the left
+	 * @see BlindSpot#getFarRight()    	Furthest you can move to the right
+	 * @see BlindSpot#inBlindSpot(double) Returns whether the destination is within the BlindSpot
+	 * @return The BlindSpot of the front cannon.
 	 */
 	  BlindSpot getCopyOfBlindSpotFrontCannon();
 	
 	/**
-	 * Returns true when the blindSpot has been reached for the backCannon
-	 * @return 
+	 * Returns true when the blindSpot has been reached for the frontcannon
+	 * @return True when blindspot has been reached
 	 */
 	  boolean getFrontCannonAtBlindSpot();
 	
@@ -86,7 +86,12 @@ public interface IFrontCannonFunctions {
 	   * @param power The power you want to shoot your bullet/missile at. The value is a double between 0.1 and 3.0
 	   */
 	  void fireFrontCannon(double power);
-	  
+
+	/**
+	 * Launches a missile from the front cannon with the given power
+	 * @param power The power you want to shoot your missile at, the power is between 10 and 30.
+	 */
+	  void launchMissile(double power);
 	  /**
 	   * Sets the color of the front cannon.
 	   * Use this to make your Ship look pretty.
@@ -113,5 +118,7 @@ public interface IFrontCannonFunctions {
 	   * @param color The Color you want the Bullets the Front Cannon shoots to be.
 	   */
 	  void setBulletColorFront(Color color);
+
+
 		
 }

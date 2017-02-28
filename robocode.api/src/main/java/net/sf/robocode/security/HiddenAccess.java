@@ -11,12 +11,8 @@ package net.sf.robocode.security;
 import net.sf.robocode.core.ContainerBase;
 import net.sf.robocode.io.Logger;
 import net.sf.robocode.peer.IRobotStatics;
-import robocode.BattleRules;
-import robocode.Bullet;
+import robocode.*;
 import robocode.Event;
-import robocode.Mine;
-import robocode.RobotStatus;
-import robocode.ShipStatus;
 import robocode.control.RobotSpecification;
 import robocode.control.events.IBattleListener;
 import robocode.naval.ComponentManager;
@@ -50,6 +46,7 @@ public class HiddenAccess {
 	//HiddenHelpers for Naval Robocode
 	private static IHiddenMineHelper	  	mineHelper;
 	private static IHiddenShipStatusHelper 	shipStatusHelper;
+	private static IHiddenMissileHelper 	missileHelper;
 	
 	private static Method initContainer;
 	private static Method initContainerRe;
@@ -101,6 +98,11 @@ public class HiddenAccess {
 			method = Mine.class.getDeclaredMethod("createHiddenHelper");
 			method.setAccessible(true);
 			mineHelper = (IHiddenMineHelper) method.invoke(null);
+			method.setAccessible(false);
+
+			method = Missile.class.getDeclaredMethod("createHiddenHelper");
+			method.setAccessible(true);
+			missileHelper = (IHiddenMissileHelper) method.invoke(null);
 			method.setAccessible(false);
 			
 
@@ -227,6 +229,11 @@ public class HiddenAccess {
 	
 	public static void update(Mine mine, String victimName, boolean isActive) {
 		mineHelper.update(mine, victimName, isActive);
+	}
+
+	public static void update(Missile missile, double x, double y, String victimName, boolean isActive)
+	{
+		missileHelper.update(missile, x, y, victimName, isActive);
 	}
 
 	public static RobotSpecification createSpecification(Object fileSpecification, String name, String author, String webpage, String version, String robocodeVersion, String jarFile, String fullClassName, String description) {

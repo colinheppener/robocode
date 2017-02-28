@@ -28,6 +28,8 @@ import java.util.List;
 public final class RobotStatics implements IRobotStatics, Serializable {
 	private static final long serialVersionUID = 1L;
 
+	private final String robocodeVersion;
+
 	private final boolean isJuniorRobot;
 	private final boolean isAdvancedRobot;
 	private final boolean isTeamRobot;
@@ -75,6 +77,7 @@ public final class RobotStatics implements IRobotStatics, Serializable {
 			veryShortName = robotItem.getUniqueVeryShortClassNameWithVersion();
 		}
 
+		this.robocodeVersion = robotItem.getRobocodeVersion();
 		this.isJuniorRobot = robotItem.isJuniorRobot();
 		this.isAdvancedRobot = robotItem.isAdvancedRobot();
 		this.isTeamRobot = robotItem.isTeamRobot();
@@ -102,11 +105,12 @@ public final class RobotStatics implements IRobotStatics, Serializable {
 		}
 	}
 
-	private RobotStatics(boolean isJuniorRobot, boolean isInteractiveRobot, boolean isPaintRobot, boolean isAdvancedRobot,
+	private RobotStatics(String robocodeVersion, boolean isJuniorRobot, boolean isInteractiveRobot, boolean isPaintRobot, boolean isAdvancedRobot,
 			boolean isTeamRobot, boolean isTeamLeader, boolean isDroid, boolean isShip, boolean isSentryRobot, String name, String shortName,
 			String veryShortName, String fullClassName, String shortClassName, BattleRules battleRules,
 			String[] teammates, String teamName, int robotIndex, int teamIndex) {
 
+		this.robocodeVersion= robocodeVersion;
 		this.isJuniorRobot = isJuniorRobot;
 		this.isAdvancedRobot = isAdvancedRobot;
 		this.isTeamRobot = isTeamRobot;
@@ -126,6 +130,11 @@ public final class RobotStatics implements IRobotStatics, Serializable {
 		this.teamName = teamName;
 		this.robotIndex = robotIndex;
 		this.teamIndex = teamIndex;
+	}
+
+	public String getRobocodeVersion()
+	{
+		return robocodeVersion;
 	}
 
 	public String getAnnonymousName() {
@@ -215,7 +224,7 @@ public final class RobotStatics implements IRobotStatics, Serializable {
 	private static class SerializableHelper implements ISerializableHelper {
 		public int sizeOf(RbSerializer serializer, Object object) {
 			RobotStatics obj = (RobotStatics) object;
-			int size = RbSerializer.SIZEOF_TYPEINFO + RbSerializer.SIZEOF_BOOL * 9 + serializer.sizeOf(obj.name)
+			int size = RbSerializer.SIZEOF_TYPEINFO +serializer.sizeOf(obj.robocodeVersion) + RbSerializer.SIZEOF_BOOL * 9 + serializer.sizeOf(obj.name)
 					+ serializer.sizeOf(obj.shortName) + serializer.sizeOf(obj.veryShortName)
 					+ serializer.sizeOf(obj.fullClassName) + serializer.sizeOf(obj.shortClassName)
 					+ RbSerializer.SIZEOF_INT * 6 + RbSerializer.SIZEOF_DOUBLE + RbSerializer.SIZEOF_LONG;
@@ -234,6 +243,7 @@ public final class RobotStatics implements IRobotStatics, Serializable {
 		public void serialize(RbSerializer serializer, ByteBuffer buffer, Object object) {
 			RobotStatics obj = (RobotStatics) object;
 
+			serializer.serialize(buffer, obj.robocodeVersion);
 			serializer.serialize(buffer, obj.isJuniorRobot);
 			serializer.serialize(buffer, obj.isInteractiveRobot);
 			serializer.serialize(buffer, obj.isPaintRobot);
@@ -268,6 +278,7 @@ public final class RobotStatics implements IRobotStatics, Serializable {
 
 		public Object deserialize(RbSerializer serializer, ByteBuffer buffer) {
 
+			String robocodeVersion = serializer.deserializeString(buffer);
 			boolean isJuniorRobot = serializer.deserializeBoolean(buffer);
 			boolean isInteractiveRobot = serializer.deserializeBoolean(buffer);
 			boolean isPaintRobot = serializer.deserializeBoolean(buffer);
@@ -308,7 +319,7 @@ public final class RobotStatics implements IRobotStatics, Serializable {
 			int index = serializer.deserializeInt(buffer);
 			int contestantIndex = serializer.deserializeInt(buffer);
 
-			return new RobotStatics(isJuniorRobot, isInteractiveRobot, isPaintRobot, isAdvancedRobot, isTeamRobot,
+			return new RobotStatics( robocodeVersion,isJuniorRobot, isInteractiveRobot, isPaintRobot, isAdvancedRobot, isTeamRobot,
 					isTeamLeader, isDroid, isShip, isSentryRobot, name, shortName, veryShortName, fullClassName, shortClassName,
 					battleRules, teammates.toArray(new String[teammates.size()]), teamName, index, contestantIndex);
 		}

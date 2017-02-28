@@ -128,7 +128,5 @@ public class WeaponComponentTest {
 		if(log){
 			System.out.println("Degrees to turn: " + Math.toDegrees(degreesToTurn) + " Radians to turn: " + degreesToTurn  + " \n*** End of " + testName + " ***");
 		}
-		
 	}
-	
 }

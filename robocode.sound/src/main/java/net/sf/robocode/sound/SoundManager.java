@@ -108,6 +108,7 @@ public class SoundManager implements ISoundManager {
 			sounds.addSound("robot collision", properties.getRobotCollisionSfx(), 2);
 			sounds.addSound("wall collision", properties.getWallCollisionSfx(), 2);
 
+
 			// Music
 			sounds.addSound("theme", properties.getFileThemeMusic(), 1);
 			sounds.addSound("background", properties.getFileBackgroundMusic(), 1);

@@ -1,8 +1,8 @@
 package robocode.naval.interfaces;
 
-import java.awt.Color;
-
 import robocode.naval.BlindSpot;
+
+import java.awt.*;
 
 /**
  * @author Thales B.V. / Thomas Hakkers
@@ -55,15 +55,15 @@ public interface IBackCannonFunctions {
 	 * Returns a copy of the BlindSpot that the back cannon has.
 	 * The BlindSpot offers great utilities that will help you out working with a BlindSpot.
 	 * @return The BlindSpot of the back cannon.
-	 * @see BlindSpot.getFarLeft()		Furthest you can move to the left
-	 * @see Blindspot.getFarRight()    	Furthest you can move to the right
-	 * @see Blindspot.inBlindSpot()		Returns whether the destination is within the BlindSpot
+	 * @see BlindSpot#getFarLeft()		Furthest you can move to the left
+	 * @see BlindSpot#getFarRight()    	Furthest you can move to the right
+	 * @see BlindSpot#inBlindSpot(double) Returns whether the destination is within the BlindSpot
 	 */
 	  BlindSpot getCopyOfBlindSpotBackCannon();
 	
 	/**
 	 * Returns true when the blindSpot has been reached for the backCannon
-	 * @return 
+	 * @return True when blindspot has been reached
 	 */
 	  boolean getBackCannonAtBlindSpot();
 	
@@ -83,7 +83,7 @@ public interface IBackCannonFunctions {
 	
 	  /**
 	   * Fires the a bullet/missile from the back cannon with the given power
-	   * @param power The power you want to shoot your bullet/missile at. The value is a double between 0.1 and 3.0
+	   * @param power The power you want to shoot your bullet at. The value is a double between 0.1 and 3.0
 	   */
 	  void fireBackCannon(double power);
 	  

@@ -6,8 +6,7 @@ import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 import static org.junit.Assert.*;
 
-import java.awt.Point;
-import java.awt.Polygon;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
@@ -15,12 +14,18 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 
 import net.sf.robocode.battle.BoundingRectangle;
+import net.sf.robocode.battle.peer.MissilePeer;
 import net.sf.robocode.io.Logger;
 import net.sf.robocode.naval.shippeer.JMockShipPeer;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
+import robocode.BattleRules;
+import robocode.Bullet;
+import robocode.Missile;
 import robocode.Ship;
+import robocode.naval.NavalRules;
 import robocode.util.Collision;
 
 /**
@@ -229,5 +234,97 @@ public class CollisionTest extends Collision {
 		assertTrue("test_mine_collision failed 1 ", collide(ship,rect));
 		ship = new JMockShipPeer(300,300,Math.toRadians(180));
 		assertTrue("test_mine_collision failed 2 ", collide(ship,rect));
+	}
+
+	@Test
+	public void testMissileCollisionWithShipTrue(){
+		JMockShipPeer ship = new JMockShipPeer(300, 300, Math.toRadians(90));
+		BoundingRectangle shipBox = new BoundingRectangle(ship.getX()-NavalRules.HALF_WIDTH_OFFSET, ship.getY()-NavalRules.HALF_HEIGHT_OFFSET, NavalRules.WIDTH, NavalRules.HEIGHT);
+
+		Missile missile = new Missile(Math.toRadians(90)+Math.PI, 300, 300, 30, "othership", null, true, 1);
+		BoundingRectangle missileBox = new BoundingRectangle(missile.getX()-NavalRules.HALF_MISSILE_WIDTH_OFFSET, missile.getY()-NavalRules.HALF_MISSILE_HEIGHT_OFFSET, NavalRules.MISSILE_WIDTH, NavalRules.MISSILE_HEIGHT);
+		assertTrue(SUFFIX+" Missiles do not collide while they should",Collision.doBoxesIntersect(shipBox, missileBox));
+	}
+
+	@Test
+	public void testMissileCollisionWithShipFalse(){
+		JMockShipPeer ship = new JMockShipPeer(300, 300, Math.toRadians(90));
+		BoundingRectangle shipBox = new BoundingRectangle(ship.getX()-NavalRules.HALF_WIDTH_OFFSET, ship.getY()-NavalRules.HALF_HEIGHT_OFFSET, NavalRules.WIDTH, NavalRules.HEIGHT);
+
+		Missile missile = new Missile(Math.toRadians(90)+Math.PI, 100, 100, 30, "othership", null, true, 1);
+		BoundingRectangle missileBox = new BoundingRectangle(missile.getX()-NavalRules.HALF_MISSILE_WIDTH_OFFSET, missile.getY()-NavalRules.HALF_MISSILE_HEIGHT_OFFSET, NavalRules.MISSILE_WIDTH, NavalRules.MISSILE_HEIGHT);
+
+		assertFalse(SUFFIX+" Missiles do collide while they should not", Collision.doBoxesIntersect(shipBox, missileBox));
+	}
+
+	@Test
+	public void testMissileCollisionWithMissileTrue(){
+		Missile missile1 = new Missile(Math.toRadians(90), 300, 300, 30, "firstship", null,true, 0);
+		Missile missile2 = new Missile(Math.toRadians(90)+Math.PI, 300, 300, 30, "secondship", null, true, 1);
+		BoundingRectangle missile1Box = new BoundingRectangle(
+				missile1.getX()-NavalRules.HALF_MISSILE_WIDTH_OFFSET, missile1.getY()-NavalRules.HALF_HEIGHT_OFFSET, NavalRules.MISSILE_WIDTH, NavalRules.MISSILE_HEIGHT );
+
+		BoundingRectangle missile2Box = new BoundingRectangle(
+				missile2.getX()-NavalRules.HALF_MISSILE_WIDTH_OFFSET, missile2.getY()-NavalRules.HALF_HEIGHT_OFFSET, NavalRules.MISSILE_WIDTH, NavalRules.MISSILE_HEIGHT );
+		assertTrue(SUFFIX+" Missiles do not collide while they should", doBoxesIntersect(missile1Box, missile2Box));
+	}
+
+	@Test
+	public void testMissileCollisionWithMissileFalse(){
+		Missile missile1 = new Missile(Math.toRadians(90), 300, 300, 30, "firstship", null,true, 0);
+		Missile missile2 = new Missile(Math.toRadians(90)+Math.PI, 100, 100, 30, "secondship", null, true, 1);
+		BoundingRectangle missile1Box = new BoundingRectangle(
+				missile1.getX()-NavalRules.HALF_MISSILE_WIDTH_OFFSET, missile1.getY()-NavalRules.HALF_HEIGHT_OFFSET, NavalRules.MISSILE_WIDTH, NavalRules.MISSILE_HEIGHT );
+
+		BoundingRectangle missile2Box = new BoundingRectangle(
+				missile2.getX()-NavalRules.HALF_MISSILE_WIDTH_OFFSET, missile2.getY()-NavalRules.HALF_HEIGHT_OFFSET, NavalRules.MISSILE_WIDTH, NavalRules.MISSILE_HEIGHT );
+		assertFalse(SUFFIX+" Missiles do collide while they should not", doBoxesIntersect(missile1Box, missile2Box));
+	}
+
+	@Test
+	public void testMissileCollisionWithBulletTrue(){
+		Missile missile = new Missile(Math.toRadians(90), 300, 300, 30, "firstship", null, true, 0);
+		Bullet bullet = new Bullet(Math.toRadians(90), 300, 300, 3, "secondship", null, true, 0);
+		BoundingRectangle missileBox = new BoundingRectangle(
+				missile.getX()-NavalRules.HALF_MISSILE_WIDTH_OFFSET, missile.getY()-NavalRules.HALF_MISSILE_HEIGHT_OFFSET, NavalRules.MISSILE_WIDTH, NavalRules.MISSILE_HEIGHT );
+		BoundingRectangle bulletBox = new BoundingRectangle(bullet.getX()-(bullet.getPower()), bullet.getY()-(bullet.getPower()), bullet.getPower()*2, bullet.getPower()*2);
+
+		assertTrue(SUFFIX+" Bullet and missile do not collide while they should", doBoxesIntersect(missileBox, bulletBox));
+	}
+
+	@Test
+	public void testMissileCollisionWithBulletFalse(){
+		Missile missile = new Missile(Math.toRadians(90), 300, 300, 30, "firstship", null, true, 0);
+		Bullet bullet = new Bullet(Math.toRadians(90)+Math.PI, 100, 100, 3, "secondship", null, true, 0);
+		BoundingRectangle missileBox = new BoundingRectangle(
+				missile.getX()-NavalRules.HALF_MISSILE_WIDTH_OFFSET, missile.getY()-NavalRules.HALF_HEIGHT_OFFSET, NavalRules.MISSILE_WIDTH, NavalRules.MISSILE_HEIGHT );
+		BoundingRectangle bulletBox = new BoundingRectangle(
+				bullet.getX()-10.5, bullet.getY()-10.5, 21, 21);
+
+		assertFalse(SUFFIX+" Bullet and missile do collide while they should not", doBoxesIntersect(missileBox, bulletBox));
+	}
+
+	@Test
+	public void testBulletCollisionWithBulletTrue(){
+		Bullet bullet = new Bullet(Math.toRadians(90), 300, 300, 3, "firstship", null, true, 0);
+		BoundingRectangle bulletBox = new BoundingRectangle(
+				bullet.getX()-10.5, bullet.getY()-10.5, 21, 21);
+		Bullet bullet2 = new Bullet(Math.toRadians(90)+Math.PI, 300, 300, 3, "secondship", null, true, 1);
+		BoundingRectangle bulletBox2 = new BoundingRectangle(
+				bullet2.getX()-10.5, bullet2.getY()-10.5, 21, 21);
+
+		assertTrue(SUFFIX+" Bullets do not collide while they should", doBoxesIntersect(bulletBox, bulletBox2));
+	}
+
+	@Test
+	public void testBulletCollisionWithBulletFalse(){
+		Bullet bullet = new Bullet(Math.toRadians(90), 300, 300, 3, "firstship", null, true, 0);
+		BoundingRectangle bulletBox = new BoundingRectangle(
+				bullet.getX()-10.5, bullet.getY()-10.5, 21, 21);
+		Bullet bullet2 = new Bullet(Math.toRadians(90)+Math.PI, 100, 100, 3, "secondship", null, true, 1);
+		BoundingRectangle bulletBox2 = new BoundingRectangle(
+				bullet2.getX()-10.5, bullet2.getY()-10.5, 21, 21);
+
+		assertFalse(SUFFIX+" Bullets do  collide while they should not", doBoxesIntersect(bulletBox, bulletBox2));
 	}
 }

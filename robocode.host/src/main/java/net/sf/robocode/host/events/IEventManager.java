@@ -33,7 +33,11 @@ public interface IEventManager {
 
 	List<BulletHitBulletEvent> getBulletHitBulletEvents();
 
+	List<BulletHitMissileEvent> getBulletHitMissileEvents();
+
 	List<BulletHitEvent> getBulletHitEvents();
+
+	List<MissileHitEvent> getMissileHitEvents();
 
 	List<HitByBulletEvent> getHitByBulletEvents();
 

@@ -9,6 +9,7 @@ package net.sf.robocode.battle.snapshot;
 
 
 import net.sf.robocode.battle.peer.RobotStatistics;
+import net.sf.robocode.battle.peer.ShipStatistics;
 import net.sf.robocode.serialization.IXmlSerializable;
 import net.sf.robocode.serialization.XmlReader;
 import net.sf.robocode.serialization.SerializableOptions;
@@ -50,6 +51,12 @@ final class ScoreSnapshot implements Serializable, IXmlSerializable, IScoreSnaps
 	/** The total bullet kill bonus */
 	private double totalBulletKillBonus;
 
+	/** The total missile damage score */
+	private double totalMissileDamageScore;
+
+	/** The total missile kill bonus */
+	private double totalMissileKillBonus;
+
 	/** The total ramming damage score */
 	private double totalRammingDamageScore;
 
@@ -80,12 +87,26 @@ final class ScoreSnapshot implements Serializable, IXmlSerializable, IScoreSnaps
 	/** The current bullet kill bonus */
 	private double currentBulletKillBonus;
 
+	/** The current bullet damage score */
+	private double currentMissileDamageScore;
+
+	/** The current bullet kill bonus */
+	private double currentMissileKillBonus;
+
+
 	/** The current ramming damage score */
 	private double currentRammingDamageScore;
 
 	/** The current ramming kill bonus */
 	private double currentRammingKillBonus;
 
+
+	private double totalMineDamageScore;
+	private double totalMineKillBonus;
+	private double currentMineDamageScore;
+	private double currentMineKillBonus;
+	
+	
 	/**
 	 * Creates a snapshot of a score that must be filled out with data later.
 	 */
@@ -97,6 +118,7 @@ final class ScoreSnapshot implements Serializable, IXmlSerializable, IScoreSnaps
 	 * @param score the contestant's score to take a snapshot of.
 	 * @param contestantName the name of the contestant.
 	 */
+
 	ScoreSnapshot(String contestantName, RobotStatistics score) {
 		this.name = contestantName;
 		totalScore = score.getTotalScore();
@@ -104,6 +126,8 @@ final class ScoreSnapshot implements Serializable, IXmlSerializable, IScoreSnaps
 		totalLastSurvivorBonus = score.getTotalLastSurvivorBonus();
 		totalBulletDamageScore = score.getTotalBulletDamageScore();
 		totalBulletKillBonus = score.getTotalBulletKillBonus();
+		totalMissileDamageScore = score.getTotalMissileDamageScore();
+		totalMissileKillBonus = score.getTotalMissileKillBonus();
 		totalRammingDamageScore = score.getTotalRammingDamageScore();
 		totalRammingKillBonus = score.getTotalRammingKillBonus();
 		totalFirsts = score.getTotalFirsts();
@@ -116,7 +140,40 @@ final class ScoreSnapshot implements Serializable, IXmlSerializable, IScoreSnaps
 		currentBulletKillBonus = score.getCurrentBulletKillBonus();
 		currentRammingDamageScore = score.getCurrentRammingDamageScore();
 		currentRammingKillBonus = score.getCurrentRammingKillBonus();
+		currentMissileDamageScore = score.getCurrentMissileDamageScore();
+		currentMissileKillBonus = score.getCurrentMissileKillBonus();
 	}
+
+	ScoreSnapshot(String contestantName, ShipStatistics score) {
+		this.name = contestantName;
+		totalScore = score.getTotalScore();
+		totalSurvivalScore = score.getTotalSurvivalScore();
+		totalLastSurvivorBonus = score.getTotalLastSurvivorBonus();
+		totalBulletDamageScore = score.getTotalBulletDamageScore();
+		totalBulletKillBonus = score.getTotalBulletKillBonus();
+		totalMissileDamageScore = score.getTotalMissileDamageScore();
+		totalMissileKillBonus = score.getTotalMissileKillBonus();
+		totalRammingDamageScore = score.getTotalRammingDamageScore();
+		totalRammingKillBonus = score.getTotalRammingKillBonus();
+		totalFirsts = score.getTotalFirsts();
+		totalSeconds = score.getTotalSeconds();
+		totalThirds = score.getTotalThirds();
+		currentScore = score.getCurrentScore();
+		currentBulletDamageScore = score.getCurrentBulletDamageScore();
+		currentSurvivalScore = score.getCurrentSurvivalScore();
+		currentSurvivalBonus = score.getCurrentSurvivalBonus();
+		currentBulletKillBonus = score.getCurrentBulletKillBonus();
+		currentRammingDamageScore = score.getCurrentRammingDamageScore();
+		currentRammingKillBonus = score.getCurrentRammingKillBonus();
+		currentMissileDamageScore = score.getCurrentMissileDamageScore();
+		currentMissileKillBonus = score.getCurrentMissileKillBonus();
+		totalMineDamageScore = score.getTotalMineDamageScore();
+		totalMineKillBonus = score.getTotalMineKillBonus();
+		currentMineDamageScore =score.getMineDamageScore();
+		currentMineKillBonus = score.getMineKillBonus();
+	}
+
+
 
 	/**
 	 * Creates a snapshot of a score based on two sets of scores that are added together.
@@ -132,6 +189,8 @@ final class ScoreSnapshot implements Serializable, IXmlSerializable, IScoreSnaps
 		totalLastSurvivorBonus = score1.getTotalLastSurvivorBonus() + score2.getTotalLastSurvivorBonus();
 		totalBulletDamageScore = score1.getTotalBulletDamageScore() + score2.getTotalBulletDamageScore();
 		totalBulletKillBonus = score1.getTotalBulletKillBonus() + score2.getTotalBulletKillBonus();
+		totalMissileDamageScore = score1.getTotalMissileDamageScore() + score2.getTotalMissileDamageScore();
+		totalMissileKillBonus = score1.getTotalMissileKillBonus() + score2.getTotalMissileKillBonus();
 		totalRammingDamageScore = score1.getTotalRammingDamageScore() + score2.getTotalRammingDamageScore();
 		totalRammingKillBonus = score1.getTotalRammingKillBonus() + score2.getTotalRammingKillBonus();
 		totalFirsts = score1.getTotalFirsts() + score2.getTotalFirsts();
@@ -142,7 +201,9 @@ final class ScoreSnapshot implements Serializable, IXmlSerializable, IScoreSnaps
 		currentBulletDamageScore = score1.getCurrentBulletDamageScore() + score2.getCurrentBulletDamageScore();
 		currentBulletKillBonus = score1.getCurrentBulletKillBonus() + score2.getCurrentBulletKillBonus();
 		currentRammingDamageScore = score1.getCurrentRammingDamageScore() + score2.getCurrentRammingDamageScore();
-		currentRammingKillBonus = score1.getCurrentBulletKillBonus() + score2.getCurrentBulletKillBonus();
+		currentRammingKillBonus = score1.getCurrentRammingKillBonus() + score2.getCurrentRammingDamageScore();
+		currentMineDamageScore = score1.getCurrentMineDamageScore() + score2.getCurrentMineDamageScore();
+		currentMineKillBonus = score1.getCurrentBulletKillBonus() + score2.getCurrentBulletKillBonus();
 	}
 
 	@Override
@@ -185,11 +246,27 @@ final class ScoreSnapshot implements Serializable, IXmlSerializable, IScoreSnaps
 		return totalBulletDamageScore;
 	}
 
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	public double getTotalBulletKillBonus() {
 		return totalBulletKillBonus;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public double getTotalMissileDamageScore() {
+		return totalMissileDamageScore;
+	}
+
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public double getTotalMissileKillBonus() {
+		return totalMissileKillBonus;
 	}
 
 	/**
@@ -265,6 +342,20 @@ final class ScoreSnapshot implements Serializable, IXmlSerializable, IScoreSnaps
 	/**
 	 * {@inheritDoc}
 	 */
+	public double getCurrentMissileDamageScore() {
+		return currentMissileDamageScore;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public double getCurrentMissileKillBonus() {
+		return currentMissileKillBonus;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public double getCurrentRammingDamageScore() {
 		return currentRammingDamageScore;
 	}
@@ -275,6 +366,27 @@ final class ScoreSnapshot implements Serializable, IXmlSerializable, IScoreSnaps
 	public double getCurrentRammingKillBonus() {
 		return currentRammingKillBonus;
 	}
+
+	@Override
+	public double getCurrentMineDamageScore() {
+		return currentMineDamageScore;
+	}
+
+	@Override
+	public double getCurrentMineKillBonus() {
+		return currentMineKillBonus;
+	}
+
+	@Override
+	public double getTotalMineDamageScore() {
+		return totalMineDamageScore;
+	}
+
+	@Override
+	public double getTotalMineKillBonus() {
+		return totalMineKillBonus;
+	}
+
 
 	/**
 	 * {@inheritDoc}
@@ -314,9 +426,16 @@ final class ScoreSnapshot implements Serializable, IXmlSerializable, IScoreSnaps
 						options.trimPrecision);
 				writer.writeAttribute(options.shortAttributes ? "tbk" : "totalBulletKillBonus", totalBulletKillBonus,
 						options.trimPrecision);
+				writer.writeAttribute(options.shortAttributes ? "tmd" : "totalMissileDamageScore", totalMissileDamageScore,
+						options.trimPrecision);
+				writer.writeAttribute(options.shortAttributes ? "tmk" : "totalMissileKillBonus", totalMissileKillBonus,
+						options.trimPrecision);
 				writer.writeAttribute(options.shortAttributes ? "trd" : "totalRammingDamageScore",
 						totalRammingDamageScore, options.trimPrecision);
-				writer.writeAttribute(options.shortAttributes ? "trk" : "totalRammingKillBonus", totalRammingKillBonus,
+
+				writer.writeAttribute(options.shortAttributes ? "tms" : "totalMineDamageScore", totalMineDamageScore,
+						options.trimPrecision);
+				writer.writeAttribute(options.shortAttributes ? "tmb" : "totalMineKillBonus", totalMineKillBonus,
 						options.trimPrecision);
 				writer.writeAttribute(options.shortAttributes ? "t1" : "totalFirsts", totalFirsts);
 				writer.writeAttribute(options.shortAttributes ? "t2" : "totalSeconds", totalSeconds);
@@ -329,9 +448,17 @@ final class ScoreSnapshot implements Serializable, IXmlSerializable, IScoreSnaps
 					options.trimPrecision);
 			writer.writeAttribute(options.shortAttributes ? "bk" : "currentBulletKillBonus", currentBulletKillBonus,
 					options.trimPrecision);
+			writer.writeAttribute(options.shortAttributes ? "md" : "currentMissileDamageScore", currentMissileDamageScore,
+					options.trimPrecision);
+			writer.writeAttribute(options.shortAttributes ? "mk" : "currentMissileKillBonus", currentMissileKillBonus,
+					options.trimPrecision);
 			writer.writeAttribute(options.shortAttributes ? "rd" : "currentRammingDamageScore",
 					currentRammingDamageScore, options.trimPrecision);
 			writer.writeAttribute(options.shortAttributes ? "rk" : "currentRammingKillBonus", currentRammingKillBonus,
+					options.trimPrecision);
+			writer.writeAttribute(options.shortAttributes ? "ms" : "currentMineDamageScore", currentMineDamageScore,
+					options.trimPrecision);
+			writer.writeAttribute(options.shortAttributes ? "rk" : "currentMineKillBonus", currentMineKillBonus,
 					options.trimPrecision);
 			if (!options.skipVersion) {
 				writer.writeAttribute("ver", serialVersionUID);
@@ -384,6 +511,16 @@ final class ScoreSnapshot implements Serializable, IXmlSerializable, IScoreSnaps
 						snapshot.totalBulletKillBonus = Double.parseDouble(value);
 					}
 				});
+				reader.expect("totalMissileDamageScore", "tmd", new XmlReader.Attribute() {
+					public void read(String value) {
+						snapshot.totalMissileDamageScore = Double.parseDouble(value);
+					}
+				});
+				reader.expect("totalMissileKillBonus", "tmk", new XmlReader.Attribute() {
+					public void read(String value) {
+						snapshot.totalMissileKillBonus = Double.parseDouble(value);
+					}
+				});
 				reader.expect("totalRammingDamageScore", "trd", new XmlReader.Attribute() {
 					public void read(String value) {
 						snapshot.totalRammingDamageScore = Double.parseDouble(value);
@@ -392,6 +529,16 @@ final class ScoreSnapshot implements Serializable, IXmlSerializable, IScoreSnaps
 				reader.expect("totalRammingKillBonus", "trk", new XmlReader.Attribute() {
 					public void read(String value) {
 						snapshot.totalRammingKillBonus = Double.parseDouble(value);
+					}
+				});
+				reader.expect("totalMineDamageScore", "tms", new XmlReader.Attribute() {
+					public void read(String value) {
+						snapshot.totalMineDamageScore = Double.parseDouble(value);
+					}
+				});
+				reader.expect("totalMineKillBonus", "tmb", new XmlReader.Attribute() {
+					public void read(String value) {
+						snapshot.totalMineKillBonus = Double.parseDouble(value);
 					}
 				});
 				reader.expect("totalFirsts", "t1", new XmlReader.Attribute() {
@@ -429,6 +576,16 @@ final class ScoreSnapshot implements Serializable, IXmlSerializable, IScoreSnaps
 						snapshot.currentBulletKillBonus = Double.parseDouble(value);
 					}
 				});
+				reader.expect("currentMissileDamageScore", "md", new XmlReader.Attribute() {
+					public void read(String value) {
+						snapshot.currentMissileDamageScore = Double.parseDouble(value);
+					}
+				});
+				reader.expect("currentMissileKillBonus", "mk", new XmlReader.Attribute() {
+					public void read(String value) {
+						snapshot.currentMissileKillBonus = Double.parseDouble(value);
+					}
+				});
 				reader.expect("currentRammingDamageScore", "rd", new XmlReader.Attribute() {
 					public void read(String value) {
 						snapshot.currentRammingDamageScore = Double.parseDouble(value);
@@ -437,6 +594,16 @@ final class ScoreSnapshot implements Serializable, IXmlSerializable, IScoreSnaps
 				reader.expect("currentRammingKillBonus", "rk", new XmlReader.Attribute() {
 					public void read(String value) {
 						snapshot.currentRammingKillBonus = Double.parseDouble(value);
+					}
+				});
+				reader.expect("currentMineDamageScore", "tms", new XmlReader.Attribute() {
+					public void read(String value) {
+						snapshot.currentMineDamageScore = Double.parseDouble(value);
+					}
+				});
+				reader.expect("currentMineDamageScore", "tmb", new XmlReader.Attribute() {
+					public void read(String value) {
+						snapshot.currentMineDamageScore = Double.parseDouble(value);
 					}
 				});
 				return snapshot;
@@ -454,9 +621,17 @@ final class ScoreSnapshot implements Serializable, IXmlSerializable, IScoreSnaps
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		temp = Double.doubleToLongBits(currentBulletKillBonus);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(currentMissileDamageScore);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(currentMissileKillBonus);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		temp = Double.doubleToLongBits(currentRammingDamageScore);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		temp = Double.doubleToLongBits(currentRammingKillBonus);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(currentMineDamageScore);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(currentMineKillBonus);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		temp = Double.doubleToLongBits(currentScore);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -469,12 +644,20 @@ final class ScoreSnapshot implements Serializable, IXmlSerializable, IScoreSnaps
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		temp = Double.doubleToLongBits(totalBulletKillBonus);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(totalMissileDamageScore);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(totalMissileKillBonus);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + totalFirsts;
 		temp = Double.doubleToLongBits(totalLastSurvivorBonus);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		temp = Double.doubleToLongBits(totalRammingDamageScore);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		temp = Double.doubleToLongBits(totalRammingKillBonus);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(totalMineDamageScore);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(totalMineKillBonus);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		temp = Double.doubleToLongBits(totalScore);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -504,8 +687,22 @@ final class ScoreSnapshot implements Serializable, IXmlSerializable, IScoreSnaps
 		if (Double.doubleToLongBits(currentBulletKillBonus) != Double.doubleToLongBits(other.currentBulletKillBonus)) {
 			return false;
 		}
+		if (Double.doubleToLongBits(currentMissileDamageScore) != Double.doubleToLongBits(other.currentMissileDamageScore)) {
+			return false;
+		}
+		if (Double.doubleToLongBits(currentMissileKillBonus) != Double.doubleToLongBits(other.currentMissileKillBonus)) {
+			return false;
+		}
 		if (Double.doubleToLongBits(currentRammingDamageScore)
 				!= Double.doubleToLongBits(other.currentRammingDamageScore)) {
+			return false;
+		}
+		if (Double.doubleToLongBits(currentMineDamageScore)
+				!= Double.doubleToLongBits(other.currentMineDamageScore)) {
+			return false;
+		}
+		if (Double.doubleToLongBits(currentMineKillBonus)
+				!= Double.doubleToLongBits(other.currentMineKillBonus)) {
 			return false;
 		}
 		if (Double.doubleToLongBits(currentRammingKillBonus) != Double.doubleToLongBits(other.currentRammingKillBonus)) {
@@ -533,6 +730,12 @@ final class ScoreSnapshot implements Serializable, IXmlSerializable, IScoreSnaps
 		if (Double.doubleToLongBits(totalBulletKillBonus) != Double.doubleToLongBits(other.totalBulletKillBonus)) {
 			return false;
 		}
+		if (Double.doubleToLongBits(totalMissileDamageScore) != Double.doubleToLongBits(other.totalMissileDamageScore)) {
+			return false;
+		}
+		if (Double.doubleToLongBits(totalMissileKillBonus) != Double.doubleToLongBits(other.totalMissileKillBonus)) {
+			return false;
+		}
 		if (totalFirsts != other.totalFirsts) {
 			return false;
 		}
@@ -543,6 +746,14 @@ final class ScoreSnapshot implements Serializable, IXmlSerializable, IScoreSnaps
 			return false;
 		}
 		if (Double.doubleToLongBits(totalRammingKillBonus) != Double.doubleToLongBits(other.totalRammingKillBonus)) {
+			return false;
+		}
+		if (Double.doubleToLongBits(totalMineDamageScore)
+				!= Double.doubleToLongBits(other.totalMineDamageScore)) {
+			return false;
+		}
+		if (Double.doubleToLongBits(totalMineKillBonus)
+				!= Double.doubleToLongBits(other.totalMineKillBonus)) {
 			return false;
 		}
 		if (Double.doubleToLongBits(totalScore) != Double.doubleToLongBits(other.totalScore)) {

@@ -23,6 +23,8 @@ public class ShipResults extends NavalBattleResults implements IResults{
 	 * @param lastSurvivorBonus is the last survivor bonus for the ship in the battle
 	 * @param bulletDamage is the bullet damage score for the ship in the battle
 	 * @param bulletDamageBonus is the bullet damage bonus for the ship in the battle
+	 * @param missileDamage is the missile damage score for the ship in the battle
+	 * @param missileDamageBonus is the missile damage bonus for the ship in the battle   
 	 * @param ramDamage is the ramming damage for the ship in the battle
 	 * @param ramDamageBonus is the ramming damage bonus for the ship in the battle
 	 * @param mineDamage is the damage the mines of this ship have done in this battle
@@ -40,6 +42,8 @@ public class ShipResults extends NavalBattleResults implements IResults{
 			double lastSurvivorBonus,
 			double bulletDamage,
 			double bulletDamageBonus,
+			double missileDamage,
+			double missileDamageBonus,
 			double ramDamage,
 			double ramDamageBonus,
 			double mineDamage,
@@ -48,7 +52,7 @@ public class ShipResults extends NavalBattleResults implements IResults{
 			int seconds,
 			int thirds
 			) {
-		super(teamLeaderName, rank, score, survival, lastSurvivorBonus, bulletDamage, bulletDamageBonus, ramDamage,
+		super(teamLeaderName, rank, score, survival, lastSurvivorBonus, bulletDamage, bulletDamageBonus, missileDamage, missileDamageBonus,ramDamage,
 				ramDamageBonus,mineDamage, mineDamageBonus, firsts, seconds, thirds);
 		this.ship = ship;
 	}
@@ -64,6 +68,7 @@ public class ShipResults extends NavalBattleResults implements IResults{
 			NavalBattleResults results) {
 		super(results.getTeamLeaderName(), results.getRank(), results.getScore(), results.getSurvival(),
 				results.getLastSurvivorBonus(), results.getBulletDamage(), results.getBulletDamageBonus(),
+				results.getMissileDamage(), results.getMissileDamageBonus(),
 				results.getRamDamage(), results.getRamDamageBonus(),
 				results.getMineDamage(), results.getMineDamageBonus(),
 				results.getFirsts(), results.getSeconds(),
@@ -107,6 +112,10 @@ public class ShipResults extends NavalBattleResults implements IResults{
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		temp = Double.doubleToLongBits(bulletDamageBonus);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(missileDamage);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(missileDamageBonus);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + firsts;
 		temp = Double.doubleToLongBits(lastSurvivorBonus);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -142,6 +151,12 @@ public class ShipResults extends NavalBattleResults implements IResults{
 			return false;
 		}
 		if (Double.doubleToLongBits(bulletDamageBonus) != Double.doubleToLongBits(other.bulletDamageBonus)) {
+			return false;
+		}
+		if (Double.doubleToLongBits(missileDamage) != Double.doubleToLongBits(other.missileDamage)) {
+			return false;
+		}
+		if (Double.doubleToLongBits(missileDamageBonus) != Double.doubleToLongBits(other.missileDamageBonus)) {
 			return false;
 		}
 		if (firsts != other.firsts) {

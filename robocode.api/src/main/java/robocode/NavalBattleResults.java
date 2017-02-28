@@ -1,9 +1,9 @@
 package robocode;
 
-import java.nio.ByteBuffer;
-
 import net.sf.robocode.serialization.ISerializableHelper;
 import net.sf.robocode.serialization.RbSerializer;
+
+import java.nio.ByteBuffer;
 
 /**
  * Contains the Naval version of the battle results returned by {@link BattleEndedEvent#getResults()}
@@ -37,31 +37,33 @@ public class NavalBattleResults extends BattleResults{
 	 * @param ramDamage         the ramming damage for the ship in the battle.
 	 * @param ramDamageBonus    the ramming damage bonus for the ship in the battle.
 	 * @param mineDamage		the mine damage score for the ship in the battle.
-	 * @param mineBonus			the mine damage bonus for the ship in the battle.
+	 * @param mineDamageBonus	the mine damage bonus for the ship in the battle.
 	 * @param firsts            the number of rounds this ship placed first.
 	 * @param seconds           the number of rounds this ship placed second.
 	 * @param thirds            the number of rounds this ship placed third.
 	 */
 	public NavalBattleResults(String teamLeaderName, int rank, double score,
 			double survival, double lastSurvivorBonus, double bulletDamage,
-			double bulletDamageBonus, double ramDamage, double ramDamageBonus,
+			double bulletDamageBonus, double missileDamage,
+							  double missileDamageBonus,  double ramDamage, double ramDamageBonus,
 			double mineDamage, double mineDamageBonus,
 			int firsts, int seconds, int thirds) {
 		super(teamLeaderName, rank, score, survival, lastSurvivorBonus, bulletDamage,
-				bulletDamageBonus, ramDamage, ramDamageBonus, firsts, seconds, thirds);
+				bulletDamageBonus, missileDamage,
+				missileDamageBonus, ramDamage, ramDamageBonus, firsts, seconds, thirds);
 		this.mineDamage = mineDamage;
 		this.mineDamageBonus = mineDamageBonus;
 	}
 
 	/**
-	 * @returns an int value of the mine damage
+	 * @return an int value of the mine damage
 	 */
 	public int getMineDamage(){
 		return (int)(mineDamage + 0.5);
 	}
 	
 	/**
-	 * @returns an int value of the mine damage bonus
+	 * @return an int value of the mine damage bonus
 	 */
 	public int getMineDamageBonus(){
 		return (int)(mineDamageBonus + 0.5);
@@ -89,13 +91,16 @@ public class NavalBattleResults extends BattleResults{
 			serializer.serialize(buffer, obj.lastSurvivorBonus);
 			serializer.serialize(buffer, obj.bulletDamage);
 			serializer.serialize(buffer, obj.bulletDamageBonus);
+			serializer.serialize(buffer, obj.missileDamage);
+			serializer.serialize(buffer, obj.missileDamageBonus);
 			serializer.serialize(buffer, obj.ramDamage);
 			serializer.serialize(buffer, obj.ramDamageBonus);
+			serializer.serialize(buffer, obj.mineDamage);
+			serializer.serialize(buffer, obj.mineDamageBonus);
 			serializer.serialize(buffer, obj.firsts);
 			serializer.serialize(buffer, obj.seconds);
 			serializer.serialize(buffer, obj.thirds);
-			serializer.serialize(buffer, obj.mineDamage);
-			serializer.serialize(buffer, obj.mineDamageBonus);
+
 		}
 
 		public Object deserialize(RbSerializer serializer, ByteBuffer buffer) {
@@ -106,16 +111,20 @@ public class NavalBattleResults extends BattleResults{
 			double lastSurvivorBonus = buffer.getDouble();
 			double bulletDamage = buffer.getDouble();
 			double bulletDamageBonus = buffer.getDouble();
+			double missileDamage = buffer.getDouble();
+			double missileDamageBonus = buffer.getDouble();
 			double ramDamage = buffer.getDouble();
 			double ramDamageBonus = buffer.getDouble();
+			double mineDamage = buffer.getDouble();
+			double mineDamageBonus = buffer.getDouble();
 			int firsts = buffer.getInt();
 			int seconds = buffer.getInt();
 			int thirds = buffer.getInt();
-			double mineDamage = buffer.getDouble();
-			double mineDamageBonus = buffer.getDouble();
+
 
 			return new NavalBattleResults(teamLeaderName, rank, score, survival, lastSurvivorBonus, bulletDamage,
-					bulletDamageBonus, ramDamage, ramDamageBonus, mineDamage, mineDamageBonus, firsts, seconds, thirds);
+					bulletDamageBonus, missileDamage,
+					missileDamageBonus, ramDamage, ramDamageBonus, mineDamage, mineDamageBonus, firsts, seconds, thirds);
 		}
 	}
 

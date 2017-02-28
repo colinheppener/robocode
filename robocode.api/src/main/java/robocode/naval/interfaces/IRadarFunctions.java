@@ -1,6 +1,6 @@
 package robocode.naval.interfaces;
 
-import java.awt.Color;
+import java.awt.*;
 
 /**
  * @author Thales B.V. / Thomas Hakkers

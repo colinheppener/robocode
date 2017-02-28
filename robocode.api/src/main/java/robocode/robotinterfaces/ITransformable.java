@@ -70,5 +70,11 @@ public interface ITransformable extends ITransformablePeer {
 	 * @return {@code true} if this rboot is a ship; {@code false} otherwise.
 	 */
 	boolean isShip();
-	
+
+	/**
+	 * Checks if this is a projectile {@link robocode.Projectile}.
+	 *
+	 * @return {@code true} if this object is a projectile; {@code false} otherwise;
+	 */
+	boolean isProjectile();
 }

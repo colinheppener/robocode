@@ -26,12 +26,15 @@ public interface IImageManager extends IRenderImages{
 
 	RenderImage getExplosionRenderImage(int which, int frame);
 
-	RenderImage getExplosionDebriseRenderImage();
+	RenderImage getExplosionDebrisRenderImage();
 	
 	RenderImage getColoredBodyRenderImage(Integer color);
 	RenderImage getColoredBodyRenderNavalImage(Integer color);
 	
 	RenderImage getColoredMineRenderNavalImage(Integer color);
+
+	RenderImage getColoredMissileRenderNavalImage(Integer color);
+
 
 	RenderImage getColoredGunRenderImage(Integer color);
 	RenderImage getColoredRadarRenderImage(Integer color);

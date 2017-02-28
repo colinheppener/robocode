@@ -74,6 +74,24 @@ class TeamStatistics implements ContestantStatistics {
 		return d;
 	}
 
+	public double getTotalMissileDamageScore() {
+		double d = 0;
+
+		for (RobotPeer teammate : teamPeer) {
+			d += teammate.getRobotStatistics().getTotalMissileDamageScore();
+		}
+		return d;
+	}
+
+	public double getTotalMissileKillBonus() {
+		double d = 0;
+
+		for (RobotPeer teammate : teamPeer) {
+			d += teammate.getRobotStatistics().getTotalMissileKillBonus();
+		}
+		return d;
+	}
+
 	public double getTotalRammingDamageScore() {
 		double d = 0;
 
@@ -182,9 +200,19 @@ class TeamStatistics implements ContestantStatistics {
 		return d;
 	}
 
+	@Override
+	public double getCurrentMissileKillBonus() {
+		double d = 0;
+
+		for (RobotPeer teammate : teamPeer) {
+			d += teammate.getRobotStatistics().getCurrentMissileKillBonus();
+		}
+		return d;
+	}
+
 	public BattleResults getFinalResults() {
 		return new BattleResults(teamPeer.getName(), rank, getTotalScore(), getTotalSurvivalScore(),
-				getTotalLastSurvivorBonus(), getTotalBulletDamageScore(), getTotalBulletKillBonus(),
+				getTotalLastSurvivorBonus(), getTotalBulletDamageScore(), getTotalBulletKillBonus(), getTotalMissileDamageScore(), getTotalMissileKillBonus(),
 				getTotalRammingDamageScore(), getTotalRammingKillBonus(), getTotalFirsts(), getTotalSeconds(),
 				getTotalThirds());
 	}

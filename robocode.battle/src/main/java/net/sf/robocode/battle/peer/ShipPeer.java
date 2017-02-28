@@ -14,6 +14,7 @@ import static robocode.naval.ComponentType.WEAPON_STERN;
 import static robocode.util.Utils.isNear;
 import static robocode.util.Utils.normalRelativeAngle;
 
+import java.awt.*;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,17 +25,9 @@ import net.sf.robocode.battle.Battle;
 import net.sf.robocode.battle.BoundingRectangle;
 import net.sf.robocode.host.IHostManager;
 import net.sf.robocode.io.Logger;
-import net.sf.robocode.peer.BulletCommand;
-import net.sf.robocode.peer.BulletCommandShip;
-import net.sf.robocode.peer.ExecCommands;
-import net.sf.robocode.peer.ExecResults;
-import net.sf.robocode.peer.MineCommand;
-import net.sf.robocode.peer.MineStatus;
+import net.sf.robocode.peer.*;
 import net.sf.robocode.security.HiddenAccess;
-import robocode.HitRobotEvent;
-import robocode.HitWallEvent;
-import robocode.ScannedShipEvent;
-import robocode.ShipStatus;
+import robocode.*;
 import robocode.control.RobotSpecification;
 import robocode.control.snapshot.RobotState;
 import robocode.naval.ComponentManager;
@@ -57,6 +50,15 @@ import robocode.util.Utils;
  */
 public class ShipPeer extends RobotPeer{
 
+	protected static final int
+			WIDTH = 40,
+			HEIGHT = 207;
+
+	protected static final int
+			HALF_WIDTH_OFFSET = WIDTH / 2,
+			HALF_HEIGHT_OFFSET = HEIGHT / 2;
+
+
 	/**
 	 * The component manager that holds all the components of this ship.
 	 */
@@ -65,6 +67,7 @@ public class ShipPeer extends RobotPeer{
 	private double lastX;
 	private double lastY;
 	private BoundingRectangle boundingRectangle;
+
 	private AtomicReference<List<MineStatus>> mineUpdates = new AtomicReference<List<MineStatus>>(
 			new ArrayList<MineStatus>());
 	
@@ -92,7 +95,7 @@ public class ShipPeer extends RobotPeer{
 	public ShipPeer(){
 		super();
 		initComponents();
-		boundingRectangle = new BoundingRectangle(0,0,NavalRules.WIDTH, NavalRules.HEIGHT);
+		boundingRectangle = new BoundingRectangle(0, 0,NavalRules.WIDTH, NavalRules.HEIGHT);
 		statistics = new ShipStatistics(this, 2);	//always 2
 	}
 	
@@ -176,19 +179,20 @@ public class ShipPeer extends RobotPeer{
 	 * Checks for every Radar on the Ship whether a Ship 
 	 * is within its arc.
 	 */
-	protected void scan(List<RobotPeer> robots){
+	protected void scan(List<RobotPeer> robots, List<MissilePeer> missiles){
 		
 		RadarComponent[] radars = manager.getComponents(RadarComponent.class);
 		for (RadarComponent radar: radars) { // For every radar on a ship look if it had a hit!		
 			radar.updateScanArc(this);					
 			//onScannedShipEvent
 			checkForShipsInScan(robots, radar);
+			checkForMissilesInScan(missiles, radar);
 		}
 		
 	}
 	
 	/**
-	 * Called by {@link #scan(List)}  The function used on each seperate Radar
+	 * Called by {@link #scan}  The function used on each seperate Radar
 	 * @param robots List of Robots that might be in scan range. Function will check whether they're valid Ships
 	 * @param radar	The RadarComponent we're checking
 	 */
@@ -227,6 +231,45 @@ public class ShipPeer extends RobotPeer{
 				}
 			}
 		}
+	}
+
+	private void checkForMissilesInScan(List<MissilePeer> missiles, RadarComponent radar){
+		for (MissilePeer other: missiles) {
+
+			MissilePeer missile = (MissilePeer)other;
+				// Determine if the robot is inside the scanArc.
+				if (radar.insideScanArc(other)) {
+					Point2D origin = radar.getOrigin(this); // The point of the radar...
+					double dx = missile.getPaintX() - origin.getX();
+					double dy = missile.getPaintY() - origin.getY();
+
+					double dist = Math.hypot(dx, dy);
+
+					double angle = atan2(dx, -1 * dy);	//dy * -1 because for some reason naval Robocode works with negative y values
+
+					IComponent cF = manager.getComponent(NavalRules.IDX_WEAPON_FRONT);
+					double bearingF = Coordinates.getParallax(this, cF, other.getX(), other.getY()) - Utils.normalRelativeAngle(cF.getAngle());
+					bearingF = Utils.normalRelativeAngle(bearingF);
+
+					IComponent cB = manager.getComponent(NavalRules.IDX_WEAPON_BACK);
+					double bearingB = Coordinates.getParallax(this, cB, other.getX(), other.getY()) - Utils.normalRelativeAngle(cB.getAngle());
+					bearingB = Utils.normalRelativeAngle(bearingB);
+
+					final ScannedMissileEvent new_event = new ScannedMissileEvent(
+							"missile scanned",
+							other.getPower(),
+							bearingF,
+							bearingB,
+							Utils.normalRelativeAngle( angle  - getBodyHeading()),
+							dist,
+							other.getHeading(),
+							other.getVelocity(),
+							other.getX(),
+							other.getY(),
+							other.getOwner().getName());
+					addEvent(new_event);
+				}
+			}
 	}
 	
 	//*** SCAN FUNCTIONS ENDS ***//
@@ -633,6 +676,48 @@ public class ShipPeer extends RobotPeer{
 		}	
 			
 	}
+
+	/**
+	 * Fires the Missiles the Ship has yet to fire based on the given MissileCommand, currently uses front cannon,
+	 * might be changed later.
+	 */
+	protected void launchMissiles(List<MissileCommand> missileCommands) {
+		MissilePeer newMissile = null;
+		MissileCommandShip mCommand;
+		for (MissileCommand missileCmd : missileCommands) {
+			if(missileCmd instanceof MissileCommandShip){
+				mCommand = (MissileCommandShip) missileCmd;
+			}
+			else{
+				System.err.println("ERROR: ShipPeer.launchMissiles: MissileCommand for Robots used for Ship");
+				break;
+			}
+			IComponent component = manager.getComponent(mCommand.getIndexComponent());
+			WeaponComponent weaponComponent;
+			if(component instanceof WeaponComponent){
+				weaponComponent = (WeaponComponent)component;
+			}
+			else{
+				System.err.println("ERROR: ShipPeer.launchMissiles: Component isn't a weapon");
+				break;
+			}
+			if (weaponComponent.getGunHeat() > 0 || getEnergy() == 0) {
+				return;
+			}
+
+			double firePower = min(getEnergy(),
+					min(max(missileCmd.getPower(), NavalRules.MIN_MISSILE_POWER), NavalRules.MAX_MISSILE_POWER));
+			updateEnergy(-firePower);
+			weaponComponent.updateGunHeat(NavalRules.getGunHeat(firePower / 2));
+			newMissile = new MissilePeer(this, battleRules, missileCmd.getMissileId());
+			newMissile.setPower(firePower);
+			newMissile.setHeading(weaponComponent.getFireAngle(this));
+			newMissile.setX(component.getOrigin(this).getX());
+			newMissile.setY(component.getOrigin(this).getY());
+
+			battle.addMissile(newMissile);
+		}
+	}
 	
 	/**
 	 * Places the Mines the Ship still needs to place based on the given MineCommands
@@ -683,7 +768,7 @@ public class ShipPeer extends RobotPeer{
 	
 	/**
 	 * To make sure Components keep facing the same direction when the Ship turns.
-	 * @param rotation The rotation the Ship is making
+	 *
 	 */
 	private void updateIndependentComponentHeadings(){
 		IComponent[] components = manager.getComponents(IComponent.class);
@@ -965,5 +1050,9 @@ public class ShipPeer extends RobotPeer{
 		ExecResults roboResults = super.waitForBattleEndImpl(newCommands);
 		roboResults.setMineUpdates(readoutMines());
 		return roboResults;
+	}
+
+	public ShipStatistics getShipStatistics(){
+		return (ShipStatistics)statistics;
 	}
 }

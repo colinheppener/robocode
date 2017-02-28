@@ -30,4 +30,6 @@ public interface IRenderImages {
 	 */
 	IPaint getColoredMineComponentRenderNavalImage(Integer color);
 	IPaint getColoredMineRenderNavalImage(Integer color);
+
+	IPaint getColoredMissileRenderNavalImage(Integer color);
 }

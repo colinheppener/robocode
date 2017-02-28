@@ -9,12 +9,7 @@ package net.sf.robocode.battle;
 
 
 import net.sf.robocode.battle.events.BattleEventDispatcher;
-import net.sf.robocode.battle.peer.BulletPeer;
-import net.sf.robocode.battle.peer.ContestantPeer;
-import net.sf.robocode.battle.peer.MinePeer;
-import net.sf.robocode.battle.peer.RobotPeer;
-import net.sf.robocode.battle.peer.ShipPeer;
-import net.sf.robocode.battle.peer.TeamPeer;
+import net.sf.robocode.battle.peer.*;
 import net.sf.robocode.battle.snapshot.TurnSnapshot;
 import net.sf.robocode.host.ICpuManager;
 import net.sf.robocode.host.IHostManager;
@@ -23,6 +18,7 @@ import net.sf.robocode.io.RobocodeProperties;
 import net.sf.robocode.repository.IRobotItem;
 import net.sf.robocode.security.HiddenAccess;
 import net.sf.robocode.settings.ISettingsManager;
+import org.omg.PortableInterceptor.INACTIVE;
 import robocode.*;
 import robocode.control.RandomFactory;
 import robocode.control.RobotResults;
@@ -34,6 +30,7 @@ import robocode.control.events.RoundEndedEvent;
 import robocode.control.snapshot.BulletState;
 import robocode.control.snapshot.ITurnSnapshot;
 import robocode.control.snapshot.MineState;
+import robocode.control.snapshot.MissileState;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -76,6 +73,7 @@ public final class Battle extends BaseBattle {
 	private List<ContestantPeer> contestants = new ArrayList<ContestantPeer>();
 	private final List<BulletPeer> bullets = new CopyOnWriteArrayList<BulletPeer>();
 	private final List<MinePeer> mines = new CopyOnWriteArrayList<MinePeer>();		//The mines currently in the battle
+	private final List<MissilePeer> missiles = new CopyOnWriteArrayList<MissilePeer>();
 
 	// Robot counters
 	private int activeParticipants;
@@ -248,6 +246,8 @@ public final class Battle extends BaseBattle {
 	public void addBullet(BulletPeer bullet) {
 		bullets.add(bullet);
 	}
+
+	public void addMissile(MissilePeer missile) {missiles.add(missile);}
 	
 	/**
 	 * Adds the given MinePeer to the Battle.
@@ -409,7 +409,7 @@ public final class Battle extends BaseBattle {
 
 		Logger.logMessage(""); // puts in a new-line in the log message
 
-		final ITurnSnapshot snapshot = new TurnSnapshot(this, robots, bullets, mines,  false);
+		final ITurnSnapshot snapshot = new TurnSnapshot(this, robots, bullets, missiles ,mines,   false);
 
 		eventDispatcher.onRoundStarted(new RoundStartedEvent(snapshot, getRoundNum()));
 	}
@@ -423,6 +423,7 @@ public final class Battle extends BaseBattle {
 		}
 		bullets.clear();
 		mines.clear();	//Clear the mines
+        missiles.clear();
 
 		eventDispatcher.onRoundEnded(new RoundEndedEvent(getRoundNum(), currentTime, totalTurns));
 	}
@@ -441,6 +442,8 @@ public final class Battle extends BaseBattle {
 		loadCommands();
 
 		updateBullets();
+
+		updateMissiles();
 		
 		updateMines();
 
@@ -525,7 +528,7 @@ public final class Battle extends BaseBattle {
 
 	@Override
 	protected void finalizeTurn() {
-		eventDispatcher.onTurnEnded(new TurnEndedEvent(new TurnSnapshot(this, robots, bullets, mines, true)));
+		eventDispatcher.onTurnEnded(new TurnEndedEvent(new TurnSnapshot(this, robots, bullets, missiles, mines,  true)));
 
 		super.finalizeTurn();
 	}
@@ -606,6 +609,13 @@ public final class Battle extends BaseBattle {
 		Collections.shuffle(shuffledList, RandomFactory.getRandom());
 		return shuffledList;
 	}
+
+	private List<MissilePeer> getMissilesAtRandom() {
+		List<MissilePeer> shuffledList = new ArrayList<MissilePeer>(missiles);
+
+		Collections.shuffle(shuffledList, RandomFactory.getRandom());
+		return shuffledList;
+	}
 	
 	/**
 	 * Returns a list of all mines in random order.
@@ -639,9 +649,18 @@ public final class Battle extends BaseBattle {
 
 	private void updateBullets() {
 		for (BulletPeer bullet : getBulletsAtRandom()) {
-			bullet.update(getRobotsAtRandom(), getBulletsAtRandom());
+			bullet.update(getRobotsAtRandom(), getBulletsAtRandom(), getMissilesAtRandom());
 			if (bullet.getState() == BulletState.INACTIVE) {
 				bullets.remove(bullet);
+			}
+		}
+	}
+
+	private void updateMissiles(){
+		for(MissilePeer missile : getMissilesAtRandom()){
+			missile.update(getRobotsAtRandom(), getMissilesAtRandom(), getBulletsAtRandom());
+			if(missile.getState() == MissileState.INACTIVE) {
+				missiles.remove(missile);
 			}
 		}
 	}
@@ -672,7 +691,8 @@ public final class Battle extends BaseBattle {
 
 		// Scan after moved all
 		for (RobotPeer robotPeer : getRobotsAtRandom()) {
-			robotPeer.performScan(getRobotsAtRandom());
+			robotPeer.performScan(getRobotsAtRandom(), getMissilesAtRandom());
+			robotPeer.updateBoundingBox();
 		}
 		
 	}

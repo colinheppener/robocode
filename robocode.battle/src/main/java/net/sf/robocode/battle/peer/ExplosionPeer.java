@@ -30,13 +30,13 @@ public class ExplosionPeer extends BulletPeer {
 		x = owner.getX();
 		y = owner.getY();
 		victim = owner;
-		power = 1;
+		power = 3;
 		state = BulletState.EXPLODED;
 		explosionImageIndex = 1;
 	}
 
 	@Override
-	public final void update(List<RobotPeer> robots, List<BulletPeer> bullets) {
+	public final void update(List<RobotPeer> robots, List<BulletPeer> bullets, List<MissilePeer> missiles) {
 		frame++;
 
 		x = owner.getX();
@@ -46,7 +46,7 @@ public class ExplosionPeer extends BulletPeer {
 	}
 
 	@Override
-	protected int getExplosionLength() {
+	public int getExplosionLength() {
 		return EXPLOSION_LENGTH;
 	}
 }

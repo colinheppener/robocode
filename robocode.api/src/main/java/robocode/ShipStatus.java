@@ -1,12 +1,12 @@
 package robocode;
 
 
-import java.nio.ByteBuffer;
-
 import net.sf.robocode.security.IHiddenShipStatusHelper;
 import net.sf.robocode.serialization.ISerializableHelper;
 import net.sf.robocode.serialization.RbSerializer;
 import robocode.naval.ComponentManager;
+
+import java.nio.ByteBuffer;
 
 /**
  * Contains the status of a robot for a specific time/turn returned by

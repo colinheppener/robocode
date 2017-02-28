@@ -8,9 +8,9 @@
 package robocode;
 
 
+import net.sf.robocode.io.Logger;
 import net.sf.robocode.peer.IRobotStatics;
 import net.sf.robocode.security.IHiddenEventHelper;
-import net.sf.robocode.io.Logger;
 import robocode.robotinterfaces.IBasicRobot;
 
 import java.awt.*;

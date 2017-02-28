@@ -16,7 +16,7 @@ public class BigShip extends Ship{
 	int directionBackCannon = 1;
 	double speed = 4;
 	double radarHeading;
-	
+
 	public void run(){
 		setBodyColor(Color.black);
 		setFrontCannonColor(Color.yellow);
@@ -25,19 +25,19 @@ public class BigShip extends Ship{
 		setMineComponentColor(Color.yellow);
 		setBulletColor(Color.yellow);
 		setScanColor(Color.red);
-		
+
 		setTurnFrontCannonRightDegrees(90);
 		setTurnBackCannonLeftDegrees(90);
 		setTurnRadarRightDegrees(90);
-		while(getBackCannonTurnRemainingRadians() != 0 
-				&& getFrontCannonTurnRemainingRadians() != 0 
+		while(getBackCannonTurnRemainingRadians() != 0
+				&& getFrontCannonTurnRemainingRadians() != 0
 				&& getRadarTurnRemainingRadians() != 0){
-			
+
 			execute();
 		}
-		
-		
-		
+
+
+
 		while(true){
 			radarHeading = Utils.normalAbsoluteAngleDegrees(getBodyHeadingDegrees() -getRadarHeadingDegrees());
 			if(radarHeading > 90 && radarHeading < 270){
@@ -51,7 +51,7 @@ public class BigShip extends Ship{
 			setTurnRadarRightDegrees(speed);
 			execute();
 		}
-		
+
 	}
 	@Override
 	public void onScannedShip(ScannedShipEvent e){

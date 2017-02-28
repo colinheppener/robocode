@@ -1,20 +1,18 @@
 package robocode.naval;
 
-import static java.lang.Math.PI;
-import static java.lang.Math.abs;
-import static java.lang.Math.signum;
-import static robocode.util.Utils.normalAbsoluteAngle;
-import static robocode.util.Utils.normalRelativeAngle;
-
-import java.awt.Graphics2D;
-import java.io.Serializable;
-import java.nio.ByteBuffer;
-
 import net.sf.robocode.security.IHiddenComponentHelper;
 import net.sf.robocode.serialization.ISerializableHelper;
 import net.sf.robocode.serialization.RbSerializer;
 import robocode.control.snapshot.IRobotSnapshot;
 import robocode.util.Utils;
+
+import java.awt.*;
+import java.io.Serializable;
+import java.nio.ByteBuffer;
+
+import static java.lang.Math.*;
+import static robocode.util.Utils.normalAbsoluteAngle;
+import static robocode.util.Utils.normalRelativeAngle;
 
 
 /*

@@ -139,10 +139,10 @@ public final class Rules {
 	public static final double ROBOT_HIT_DAMAGE = 0.6;
 
 	/**
-	 * The amount of bonus given when a robot moving forward hits an opponent
-	 * robot (ramming), which is 1.2 energy points.
+	 * The amount of bonus damage dealt by a robot ramming an opponent by moving forward into it,
+	 * which is 2 x 0.6 = 1.2 energy points.
 	 */
-	public static final double ROBOT_HIT_BONUS = 1.2;
+	public static final double ROBOT_HIT_BONUS = 2 * ROBOT_HIT_DAMAGE;
 
 	/**
 	 * Returns the turn rate of a robot given a specific velocity measured in
@@ -193,6 +193,7 @@ public final class Rules {
 		}
 		return damage;
 	}
+
 
 	/**
 	 * Returns the amount of bonus given when a robot's bullet hits an opponent

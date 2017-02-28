@@ -14,6 +14,7 @@ import robocode.robotinterfaces.peer.IJuniorRobotPeer;
 import robocode.util.Utils;
 
 import java.awt.*;
+
 import static java.lang.Math.toRadians;
 
 
@@ -483,6 +484,8 @@ public class JuniorRobot extends _RobotBase implements IJuniorRobot {
 	 */
 	public void onHitRobot() {}
 
+	public void onHitByMyssile(){}
+
 	/**
 	 * This event methods is called from the game when this robot has hit a wall.
 	 * When this event occurs the {@link #hitWallAngle} and {@link #hitWallBearing}
@@ -801,6 +804,11 @@ public class JuniorRobot extends _RobotBase implements IJuniorRobot {
 
 		public void onBulletHitBullet(BulletHitBulletEvent event) {}
 
+		@Override
+		public void onBulletHitMissile(BulletHitMissileEvent event) {
+
+		}
+
 		public void onBulletMissed(BulletMissedEvent event) {}
 
 		public void onDeath(DeathEvent event) {}
@@ -811,6 +819,15 @@ public class JuniorRobot extends _RobotBase implements IJuniorRobot {
 			hitByBulletAngle = (int) (Math.toDegrees(Utils.normalAbsoluteAngle(angle)) + 0.5);
 			hitByBulletBearing = (int) (event.getBearing() + 0.5);
 			JuniorRobot.this.onHitByBullet();
+		}
+
+		@Override public void onMissileHit(MissileHitEvent event){}
+
+		@Override public void onMissileHitMissile(MissileHitMissileEvent event) {}
+		/**{@inheritDoc}*/
+		@Override public void onMissileMissed(MissileMissedEvent event) {}
+
+		@Override public void onHitByMissile(HitByMissileEvent event) {
 		}
 
 		public void onHitRobot(HitRobotEvent event) {

@@ -561,6 +561,27 @@ public interface IAdvancedRobotPeer extends IStandardRobotPeer {
 	List<BulletMissedEvent> getBulletMissedEvents();
 
 	/**
+	 * Returns a vector containing all MissileMissedEvents currently in the
+	 * robot's queue. You might, for example, call this while processing another
+	 * event.
+	 * <p/>
+	 * Example:
+	 * <pre>
+	 *   for (MissileMissedEvent event : getMissileMissedEvents()) {
+	 *       <i>// do something with the event</i>
+	 *   }
+	 * </pre>
+	 *
+	 * @return a vector containing all MissileMissedEvents currently in the
+	 *         robot's queue
+	 * @see robocode.robotinterfaces.IBasicEvents#onMissileMissed(MissileMissedEvent)
+	 *      onMissileMissed(MissileMissedEvent)
+	 * @see MissileMissedEvent
+	 * @see #getAllEvents()
+	 */
+	List<MissileMissedEvent> getMissileMissedEvents();
+
+	/**
 	 * Returns a vector containing all BulletHitBulletEvents currently in the
 	 * robot's queue. You might, for example, call this while processing another
 	 * event.
@@ -580,7 +601,28 @@ public interface IAdvancedRobotPeer extends IStandardRobotPeer {
 	 * @see #getAllEvents()
 	 */
 	List<BulletHitBulletEvent> getBulletHitBulletEvents();
-
+	
+	/**
+	 * Returns a vector containing all BulletHitMissileEvents currently in the
+	 * ship's queue. You might, for example, call this while processing another
+	 * event.
+	 * <p/>
+	 * Example:
+	 * <pre>
+	 *   for (BulletHitMissileEvent event : getBulletHitMissileEvents()) {
+	 *       <i>// do something with the event</i>
+	 *   }
+	 * </pre>
+	 *
+	 * @return a vector containing all BulletHitMissileEvents currently in the
+	 *         robot's queue
+	 * @see robocode.robotinterfaces.IBasicEvents#onBulletHitMissile(BulletHitMissileEvent) 
+	 *      onBulletHitmissile(BulletHitMissileEvent)
+	 * @see BulletHitMissileEvent
+	 * @see #getAllEvents()
+	 */
+	List<BulletHitMissileEvent> getBulletHitMissileEvents();
+	
 	/**
 	 * Returns a vector containing all BulletHitEvents currently in the robot's
 	 * queue. You might, for example, call this while processing another event.
@@ -602,6 +644,26 @@ public interface IAdvancedRobotPeer extends IStandardRobotPeer {
 	List<BulletHitEvent> getBulletHitEvents();
 
 	/**
+	 * Returns a vector containing all MissileHitEvents currently in the robot's
+	 * queue. You might, for example, call this while processing another event.
+	 * <p/>
+	 * Example:
+	 * <pre>
+	 *   for (MissileHitEvent event: getMissileHitEvents()) {
+	 *       <i>// do something with the event</i>
+	 *   }
+	 * </pre>
+	 *
+	 * @return a vector containing all MissileHitEvents currently in the robot's
+	 *         queue
+	 * @see robocode.robotinterfaces.IBasicEvents#onMissileHit(MissileHitEvent)
+	 *      onMissileHit(MissileHitEvent)
+	 * @see MissileHitEvent
+	 * @see #getAllEvents()
+	 */
+	List<MissileHitEvent> getMissileHitEvents();
+
+	/**
 	 * Returns a vector containing all HitByBulletEvents currently in the
 	 * robot's queue. You might, for example, call this while processing
 	 * another event.
@@ -621,6 +683,27 @@ public interface IAdvancedRobotPeer extends IStandardRobotPeer {
 	 * @see #getAllEvents()
 	 */
 	List<HitByBulletEvent> getHitByBulletEvents();
+
+	/**
+	 * Returns a vector containing all HitByMissileEvents currently in the
+	 * robot's queue. You might, for example, call this while processing
+	 * another event.
+	 * <p/>
+	 * Example:
+	 * <pre>
+	 *   for (HitByMissileEvent event : getHitByMissileEvents()) {
+	 *       <i>// do something with the event</i>
+	 *   }
+	 * </pre>
+	 *
+	 * @return a vector containing all HitByMissileEvents currently in the
+	 *         robot's queue
+	 * @see robocode.robotinterfaces.IBasicEvents#onHitByMissile(HitByMissileEvent)
+	 *      onHitByMissile(HitByMissileEvent)
+	 * @see HitByMissileEvent
+	 * @see #getAllEvents()
+	 */
+	List<HitByMissileEvent> getHitByMissileEvents();
 
 	/**
 	 * Returns a vector containing all HitRobotEvents currently in the robot's

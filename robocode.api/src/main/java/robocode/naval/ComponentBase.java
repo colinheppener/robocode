@@ -1,18 +1,18 @@
 package robocode.naval;
 
-import static java.lang.Math.PI;
-
-import java.awt.Color;
-import java.awt.geom.Point2D;
-import java.io.Serializable;
-import java.nio.ByteBuffer;
-
 import net.sf.robocode.security.IHiddenComponentHelper;
 import net.sf.robocode.serialization.ISerializableHelper;
 import net.sf.robocode.serialization.RbSerializer;
 import robocode.naval.interfaces.IComponent;
 import robocode.robotinterfaces.ITransformable;
 import robocode.util.Coordinates;
+
+import java.awt.*;
+import java.awt.geom.Point2D;
+import java.io.Serializable;
+import java.nio.ByteBuffer;
+
+import static java.lang.Math.PI;
 
 /**
  * The abstract class for the basic ship components. 

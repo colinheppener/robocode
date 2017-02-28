@@ -11,6 +11,7 @@ package net.sf.robocode.host.io;
 import net.sf.robocode.host.IHostedThread;
 import net.sf.robocode.io.FileUtil;
 import net.sf.robocode.io.Logger;
+import net.sf.robocode.version.Version;
 
 import java.io.*;
 import java.net.JarURLConnection;
@@ -143,14 +144,30 @@ public class RobotFileSystemManager {
 				connection.setUseCaches(false);
 				try {
 					is = connection.getInputStream();
-				} catch (FileNotFoundException ignore) {// Expected as no file might exists with the specified input 'filename'
+				} catch (FileNotFoundException ex) { // Expected as no file might exists with the specified input 'filename'
+					// #380 yet another historical bot related bug
+					Version robocodeVersion = toVersion(robotProxy.getStatics().getRobocodeVersion());
+					if (robocodeVersion != null && robocodeVersion.compareTo("1.8.2.0") < 0) {
+						throw ex;
+					}
 				}
 				os = new FileOutputStream(file);
 				if (is != null) {
 					copyStream(is, os);
 				}
 			} catch (IOException e) {
-				Logger.logError(e);
+				// #380 yet another historical bot related bug
+				boolean legacyRobot = false;
+				if (e instanceof FileNotFoundException) {
+					Version robocodeVersion = toVersion(robotProxy.getStatics().getRobocodeVersion());
+					if (robocodeVersion != null && robocodeVersion.compareTo("1.8.2.0") < 0) {
+						legacyRobot = true;
+					}
+				}
+				if (!legacyRobot) {
+					// Always log error, unless an legacy robot got a FileNotFoundException
+					Logger.logError(e);
+				}
 			} finally {
 				FileUtil.cleanupStream(is);
 				FileUtil.cleanupStream(os);
@@ -301,5 +318,19 @@ public class RobotFileSystemManager {
 			bos.write(buf, 0, len);
 		}
 		bos.flush();
+	}
+
+	private static Version toVersion(String vers) {
+		if (vers != null) {
+			vers = vers.trim();
+			if (vers.length() > 0) {
+				try {
+					return new Version(vers);
+				} catch (IllegalArgumentException ex) {
+					return null;
+				}
+			}
+		}
+		return null;
 	}
 }

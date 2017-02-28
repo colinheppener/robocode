@@ -1,18 +1,16 @@
 package robocode.naval;
 
-import static java.lang.Math.PI;
-import static java.lang.Math.max;
-import static java.lang.Math.min;
-
-import java.awt.Color;
-import java.awt.geom.Point2D;
-import java.nio.ByteBuffer;
-
 import net.sf.robocode.security.IHiddenComponentHelper;
 import net.sf.robocode.serialization.ISerializableHelper;
 import net.sf.robocode.serialization.RbSerializer;
 import robocode.robotinterfaces.ITransformable;
 import robocode.util.Utils;
+
+import java.awt.*;
+import java.awt.geom.Point2D;
+import java.nio.ByteBuffer;
+
+import static java.lang.Math.*;
 
 /**
  * A class that resembles a weapon component for on a ship.
@@ -53,7 +51,8 @@ public class WeaponComponent extends ComponentBase {
 	 * The fire power of the weapon.
 	 */
 	private double power;
-		
+
+	private double missilePower;
 	/** Preserved for use during the serialization! **/
 	private WeaponComponent() {
 		this(0.0d, 0.0d, ComponentType.UNDEFINED);
@@ -127,6 +126,15 @@ public class WeaponComponent extends ComponentBase {
 	public void setFirePower(double energy, double power) {
 		this.power = min(energy, min(max(power, NavalRules.MIN_BULLET_POWER), NavalRules.MAX_BULLET_POWER));
 	}
+
+	public void setFirePowerMissile(double energy, double power)
+	{
+		this.missilePower = min(energy, min(max(power, NavalRules.MIN_MISSILE_POWER), NavalRules.MAX_MISSILE_POWER));
+	}
+
+	public double getMissilePower(){
+		return missilePower;
+	}
 	
 	/**
 	 * Get the fire power of the weapon.
@@ -174,7 +182,7 @@ public class WeaponComponent extends ComponentBase {
 	 * @return The angle towards which the bullet gets fired.
 	 */
 	public double getFireAngle(ITransformable peer) {
-			return PI - getAngle() - peer.getBodyHeading();
+		return PI - getAngle() - peer.getBodyHeading();
 	}
 	
 	public BlindSpot getCopyOfBlindSpot(){
