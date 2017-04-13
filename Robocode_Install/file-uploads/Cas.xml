@@ -1,0 +1,117 @@
+<xml xmlns="http://www.w3.org/1999/xhtml">
+  <block type="shiprun" x="0" y="0">
+    <statement name="STACK">
+      <block type="setturnradarrightdegrees">
+        <value name="VALUE">
+          <block type="positiveinfinity"></block>
+        </value>
+        <next>
+          <block type="variables_set">
+            <field name="VAR">direction</field>
+            <value name="VALUE">
+              <block type="math_number">
+                <field name="NUM">1</field>
+              </block>
+            </value>
+            <next>
+              <block type="setshipname">
+                <value name="VALUE">
+                  <block type="text">
+                    <field name="TEXT">cas</field>
+                  </block>
+                </value>
+                <next>
+                  <block type="setshippackage">
+                    <value name="VALUE">
+                      <block type="text">
+                        <field name="TEXT">testships</field>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="infiniteloop">
+                        <statement name="STACK">
+                          <block type="setahead">
+                            <value name="VAL">
+                              <block type="math_arithmetic">
+                                <field name="OP">MULTIPLY</field>
+                                <value name="A">
+                                  <block type="math_number">
+                                    <field name="NUM">4000</field>
+                                  </block>
+                                </value>
+                                <value name="B">
+                                  <block type="variables_get">
+                                    <field name="VAR">direction</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                          </block>
+                        </statement>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+  <block type="onscannedshipevent" x="0" y="247">
+    <statement name="STACK">
+      <block type="shooteithercannonattarget">
+        <value name="VALUE">
+          <block type="math_number">
+            <field name="NUM">3</field>
+          </block>
+        </value>
+      </block>
+    </statement>
+  </block>
+  <block type="onhitwallevent" x="0" y="341">
+    <statement name="STACK">
+      <block type="variables_set">
+        <field name="VAR">direction</field>
+        <value name="VALUE">
+          <block type="math_arithmetic">
+            <field name="OP">MULTIPLY</field>
+            <value name="A">
+              <block type="math_number">
+                <field name="NUM">-1</field>
+              </block>
+            </value>
+            <value name="B">
+              <block type="variables_get">
+                <field name="VAR">direction</field>
+              </block>
+            </value>
+          </block>
+        </value>
+      </block>
+    </statement>
+  </block>
+  <block type="onhitrobotevent" x="0" y="446">
+    <statement name="STACK">
+      <block type="variables_set">
+        <field name="VAR">direction</field>
+        <value name="VALUE">
+          <block type="math_arithmetic">
+            <field name="OP">MULTIPLY</field>
+            <value name="A">
+              <block type="math_number">
+                <field name="NUM">-1</field>
+              </block>
+            </value>
+            <value name="B">
+              <block type="variables_get">
+                <field name="VAR">direction</field>
+              </block>
+            </value>
+          </block>
+        </value>
+      </block>
+    </statement>
+  </block>
+</xml>

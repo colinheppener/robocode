@@ -1,0 +1,25 @@
+<xml xmlns="http://www.w3.org/1999/xhtml">
+  <block type="shiprun" x="220" y="15">
+    <statement name="STACK">
+      <block type="setshipname">
+        <value name="VALUE">
+          <block type="text">
+            <field name="TEXT">test999998</field>
+          </block>
+        </value>
+        <next>
+          <block type="setshippackage">
+            <value name="VALUE">
+              <block type="text">
+                <field name="TEXT">blocklyships</field>
+              </block>
+            </value>
+            <next>
+              <block type="infiniteloop"></block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+</xml>
